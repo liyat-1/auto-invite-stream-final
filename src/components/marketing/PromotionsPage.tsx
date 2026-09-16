@@ -136,15 +136,37 @@ export function PromotionsPage() {
                   className="rounded-sm border border-input bg-background px-2.5 py-1.5 text-[12.5px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </label>
-              <label className="grid gap-1 sm:col-span-2">
+              <div className="grid gap-1 sm:col-span-2">
                 <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Tagline on the offer banner</span>
-                <input
-                  value={tagline}
-                  onChange={(event) => setTagline(event.target.value)}
-                  placeholder="e.g. Stay longer and save"
-                  className="rounded-sm border border-input bg-background px-2.5 py-1.5 text-[12.5px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                />
-              </label>
+                <div className="flex items-center gap-1.5 rounded-sm border border-input bg-background px-2.5 py-1 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20">
+                  <input
+                    value={tagline}
+                    onChange={(event) => setTagline(event.target.value)}
+                    placeholder="e.g. Stay longer and save 🌙"
+                    className="min-w-0 flex-1 bg-transparent py-0.5 text-[12.5px] outline-none"
+                  />
+                  <EmojiPicker onPick={(emoji) => setTagline((v) => `${v}${emoji}`)} label="Add emoji to tagline" />
+                </div>
+              </div>
+              <div className="grid gap-1 sm:col-span-2">
+                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Banner colour</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {BANNER_THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      title={theme.label}
+                      aria-label={theme.label}
+                      aria-pressed={bannerStyle === theme.id}
+                      onClick={() => setBannerStyle(theme.id)}
+                      className={`size-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                        bannerStyle === theme.id ? "border-brand ring-2 ring-brand/25" : "border-border"
+                      }`}
+                      style={{ backgroundColor: theme.swatch }}
+                    />
+                  ))}
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
                   <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Valid from</span>
