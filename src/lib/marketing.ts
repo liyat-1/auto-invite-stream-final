@@ -200,7 +200,23 @@ export type Promotion = {
   endsAt?: string;
   /** How many days the offer stays valid for a guest once they receive it. */
   durationDays?: number;
+  /** Chosen banner colour/style id. Falls back to a deterministic tint. */
+  bannerStyle?: string;
 };
+
+/** Colour and style choices for the guest-facing offer banner. */
+export const BANNER_THEMES = [
+  { id: "midnight", label: "Midnight blue", gradient: "from-[#1b3a6b] to-[#2f6fb5]", swatch: "#1b3a6b", ribbon: "bg-[#0f2c56]" },
+  { id: "rose", label: "Rose", gradient: "from-[#a8175e] to-[#d44c93]", swatch: "#c01f6f", ribbon: "bg-[#8c0f4c]" },
+  { id: "emerald", label: "Emerald", gradient: "from-[#0f4f46] to-[#23897a]", swatch: "#14655a", ribbon: "bg-[#0a3c35]" },
+  { id: "plum", label: "Plum", gradient: "from-[#5b2a83] to-[#8f5bc4]", swatch: "#6c33a0", ribbon: "bg-[#421c62]" },
+  { id: "amber", label: "Amber", gradient: "from-[#7a3410] to-[#c4712c]", swatch: "#9b4b17", ribbon: "bg-[#5c250a]" },
+  { id: "slate", label: "Graphite", gradient: "from-[#1f2430] to-[#4b5566]", swatch: "#2b3140", ribbon: "bg-[#141821]" },
+  { id: "teal", label: "Lagoon", gradient: "from-[#0b4a63] to-[#1f8fae]", swatch: "#0e5f7e", ribbon: "bg-[#073547]" },
+  { id: "sunset", label: "Sunset", gradient: "from-[#8a1f3d] to-[#e0673f]", swatch: "#b23a42", ribbon: "bg-[#68152c]" },
+] as const;
+
+export type BannerTheme = (typeof BANNER_THEMES)[number];
 
 export const CODE_TYPE_LABEL: Record<NonNullable<Promotion["codeType"]>, string> = {
   promo: "Promo code",
