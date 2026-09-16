@@ -282,10 +282,10 @@ function IncludedBanner({ ctx }: { ctx: BannerCtx }) {
   );
 }
 
-function BannerFooter({ promotion, showCode = true }: { promotion: BannerPromotion; showCode?: boolean }) {
+function BannerFooter({ promotion, showCode = true, showDescription = true }: { promotion: BannerPromotion; showCode?: boolean; showDescription?: boolean }) {
   return (
     <div className="space-y-1 border-t border-border/60 px-3.5 py-2.5">
-      {promotion.detail && <p className="text-[11px] leading-relaxed text-card-foreground">{promotion.detail}</p>}
+      {showDescription && promotion.detail && <p className="text-[11px] leading-relaxed text-card-foreground">{promotion.detail}</p>}
       {showCode && (
         <p className="text-[11.5px] font-semibold text-card-foreground">
           {CODE_TYPE_LABEL[promotion.codeType ?? "promo"]}: {promotion.code || "—"}
@@ -351,7 +351,7 @@ export function PromoBanner({
   return (
     <div className={`overflow-hidden rounded-lg border border-border bg-card shadow-card ${className}`}>
       {body}
-      <BannerFooter promotion={promotion} showCode={template !== "ticket"} />
+      <BannerFooter promotion={promotion} showCode={template !== "ticket"} showDescription={!(["upgrade", "schedule", "included"] as string[]).includes(template)} />
     </div>
   );
 }

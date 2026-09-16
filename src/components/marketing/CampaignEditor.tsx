@@ -103,23 +103,23 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
 
   return (
     <Dialog open onOpenChange={(open) => !open && closeSafely()}>
-      <DialogContent className="flex h-[92vh] max-h-[92vh] w-[96vw] max-w-6xl flex-col gap-0 overflow-hidden border-border bg-canvas p-0 shadow-float [&>button]:hidden">
+      <DialogContent className="flex h-[92vh] max-h-[92vh] w-[calc(100vw-1rem)] max-w-6xl flex-col gap-0 overflow-hidden border-border bg-canvas p-0 shadow-float sm:w-[96vw] [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Edit {draft.name}</DialogTitle>
           <DialogDescription>Edit campaign text, email, and attached promotion.</DialogDescription>
         </DialogHeader>
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
+      <header className="flex flex-col gap-3 border-b border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="min-w-0"><p className="text-[10.5px] font-medium text-muted-foreground">Automated invite</p><h2 className="truncate text-[17px] font-semibold text-card-foreground">{draft.name}</h2><p className="truncate text-[11.5px] text-muted-foreground">{STRATEGY_LABEL[draft.strategy]}</p></div>
         </div>
-        <div className="flex items-center gap-2"><span className={`text-[11.5px] ${dirty ? "text-brand" : "text-muted-foreground"}`}>{dirty ? "Unsaved changes" : "All changes saved"}</span><Button variant="brand" size="sm" disabled={!dirty} onClick={requestSave}><Check size={14} />Save changes</Button><Button variant="ghost" size="icon" onClick={closeSafely} aria-label="Close editor"><X size={18} /></Button></div>
+        <div className="flex items-center gap-2"><span className={`mr-auto text-[11.5px] sm:mr-0 ${dirty ? "text-brand" : "text-muted-foreground"}`}>{dirty ? "Unsaved changes" : "All changes saved"}</span><Button variant="brand" size="sm" disabled={!dirty} onClick={requestSave}><Check size={14} />Save changes</Button><Button variant="ghost" size="icon" onClick={closeSafely} aria-label="Close editor"><X size={18} /></Button></div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3 border-b border-border bg-card px-4 py-2.5 sm:px-6">
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2.5 sm:gap-3 sm:px-6">
         <div className="flex gap-1 rounded-md bg-muted p-1">{(["direct", "ota"] as AudienceKey[]).map((key) => <button key={key} onClick={() => setAudience(key)} className={segment(audience === key)}>{AUDIENCE_LABEL[key]}{draft.variants[key].customized && <span className="ml-1.5 inline-block size-1.5 rounded-full bg-brand" />}</button>)}</div>
         <div className="flex gap-1 rounded-md bg-muted p-1"><button onClick={() => setChannel("text")} className={segment(activeChannel === "text")}>Text</button><button onClick={() => strategyHasEmail(draft.strategy) && setChannel("email")} disabled={!strategyHasEmail(draft.strategy)} className={segment(activeChannel === "email", !strategyHasEmail(draft.strategy))}>Email</button></div>
-        <span className="text-[11.5px] text-muted-foreground">{activeChannel === "text" ? "Text" : "Email"} · <span className={variant.customization[activeChannel] ? "font-medium text-brand" : ""}>{variant.customization[activeChannel] ? "Customized" : "Default"}</span></span>
-        <Button variant="ghost" size="sm" className="ml-auto" disabled={!variant.customization[activeChannel]} onClick={() => setConfirm("revert")}><RotateCcw size={13} />Revert content</Button>
+        <span className="hidden text-[11.5px] text-muted-foreground md:inline">{activeChannel === "text" ? "Text" : "Email"} · <span className={variant.customization[activeChannel] ? "font-medium text-brand" : ""}>{variant.customization[activeChannel] ? "Customized" : "Default"}</span></span>
+        <Button variant="ghost" size="sm" className="ml-auto px-2 sm:px-3" disabled={!variant.customization[activeChannel]} onClick={() => setConfirm("revert")}><RotateCcw size={13} /><span className="hidden sm:inline">Revert content</span><span className="sm:hidden">Revert</span></Button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
