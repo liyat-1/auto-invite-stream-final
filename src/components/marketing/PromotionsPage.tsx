@@ -101,8 +101,8 @@ export function PromotionsPage() {
                       Edit
                     </Button>
                     <Button variant={count ? "outline" : "brand"} size="sm" onClick={() => setManaging(promotion.id)}>
-                      {count ? null : <Plus size={13} />}
-                      {count ? "Assign" : "Assign"}
+                      {!count && <Plus size={13} />}
+                      Assign
                     </Button>
                   </div>
                 </div>
