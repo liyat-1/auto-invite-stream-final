@@ -10,33 +10,262 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as CampaignRouteImport } from './routes/campaign'
+import { Route as CanvasRouteImport } from './routes/canvas'
+import { Route as OtaRouteImport } from './routes/ota'
+import { Route as RoiRouteImport } from './routes/roi'
+import { Route as StructuredRouteImport } from './routes/structured'
+import { Route as MarketingInPropertyRouteImport } from './routes/marketing.in-property'
+import { Route as MarketingInvitesRouteImport } from './routes/marketing.invites'
+import { Route as MarketingMediaRouteImport } from './routes/marketing.media'
+import { Route as MarketingPromotionsRouteImport } from './routes/marketing.promotions'
+import { Route as MarketingTransactionalRouteImport } from './routes/marketing.transactional'
+import { Route as OtaIndexRouteImport } from './routes/ota.index'
+import { Route as OtaGuestsRouteImport } from './routes/ota.guests'
+import { Route as OtaJourneyRouteImport } from './routes/ota.journey'
+import { Route as OtaOfferRouteImport } from './routes/ota.offer'
+import { Route as OtaOpportunitiesRouteImport } from './routes/ota.opportunities'
+import { Route as OtaPerformanceRouteImport } from './routes/ota.performance'
+import { Route as OtaSettingsRouteImport } from './routes/ota.settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampaignRoute = CampaignRouteImport.update({
+  id: '/campaign',
+  path: '/campaign',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CanvasRoute = CanvasRouteImport.update({
+  id: '/canvas',
+  path: '/canvas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OtaRoute = OtaRouteImport.update({
+  id: '/ota',
+  path: '/ota',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoiRoute = RoiRouteImport.update({
+  id: '/roi',
+  path: '/roi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StructuredRoute = StructuredRouteImport.update({
+  id: '/structured',
+  path: '/structured',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingInPropertyRoute = MarketingInPropertyRouteImport.update({
+  id: '/marketing/in-property',
+  path: '/marketing/in-property',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingInvitesRoute = MarketingInvitesRouteImport.update({
+  id: '/marketing/invites',
+  path: '/marketing/invites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingMediaRoute = MarketingMediaRouteImport.update({
+  id: '/marketing/media',
+  path: '/marketing/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingPromotionsRoute = MarketingPromotionsRouteImport.update({
+  id: '/marketing/promotions',
+  path: '/marketing/promotions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingTransactionalRoute = MarketingTransactionalRouteImport.update({
+  id: '/marketing/transactional',
+  path: '/marketing/transactional',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OtaIndexRoute = OtaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaGuestsRoute = OtaGuestsRouteImport.update({
+  id: '/guests',
+  path: '/guests',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaJourneyRoute = OtaJourneyRouteImport.update({
+  id: '/journey',
+  path: '/journey',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaOfferRoute = OtaOfferRouteImport.update({
+  id: '/offer',
+  path: '/offer',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaOpportunitiesRoute = OtaOpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaPerformanceRoute = OtaPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => OtaRoute,
+} as any)
+const OtaSettingsRoute = OtaSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => OtaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/campaign': typeof CampaignRoute
+  '/canvas': typeof CanvasRoute
+  '/ota': typeof OtaRouteWithChildren
+  '/roi': typeof RoiRoute
+  '/structured': typeof StructuredRoute
+  '/marketing/in-property': typeof MarketingInPropertyRoute
+  '/marketing/invites': typeof MarketingInvitesRoute
+  '/marketing/media': typeof MarketingMediaRoute
+  '/marketing/promotions': typeof MarketingPromotionsRoute
+  '/marketing/transactional': typeof MarketingTransactionalRoute
+  '/ota/guests': typeof OtaGuestsRoute
+  '/ota/journey': typeof OtaJourneyRoute
+  '/ota/offer': typeof OtaOfferRoute
+  '/ota/opportunities': typeof OtaOpportunitiesRoute
+  '/ota/performance': typeof OtaPerformanceRoute
+  '/ota/settings': typeof OtaSettingsRoute
+  '/ota/': typeof OtaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/campaign': typeof CampaignRoute
+  '/canvas': typeof CanvasRoute
+  '/roi': typeof RoiRoute
+  '/structured': typeof StructuredRoute
+  '/marketing/in-property': typeof MarketingInPropertyRoute
+  '/marketing/invites': typeof MarketingInvitesRoute
+  '/marketing/media': typeof MarketingMediaRoute
+  '/marketing/promotions': typeof MarketingPromotionsRoute
+  '/marketing/transactional': typeof MarketingTransactionalRoute
+  '/ota/guests': typeof OtaGuestsRoute
+  '/ota/journey': typeof OtaJourneyRoute
+  '/ota/offer': typeof OtaOfferRoute
+  '/ota/opportunities': typeof OtaOpportunitiesRoute
+  '/ota/performance': typeof OtaPerformanceRoute
+  '/ota/settings': typeof OtaSettingsRoute
+  '/ota': typeof OtaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/campaign': typeof CampaignRoute
+  '/canvas': typeof CanvasRoute
+  '/ota': typeof OtaRouteWithChildren
+  '/roi': typeof RoiRoute
+  '/structured': typeof StructuredRoute
+  '/marketing/in-property': typeof MarketingInPropertyRoute
+  '/marketing/invites': typeof MarketingInvitesRoute
+  '/marketing/media': typeof MarketingMediaRoute
+  '/marketing/promotions': typeof MarketingPromotionsRoute
+  '/marketing/transactional': typeof MarketingTransactionalRoute
+  '/ota/guests': typeof OtaGuestsRoute
+  '/ota/journey': typeof OtaJourneyRoute
+  '/ota/offer': typeof OtaOfferRoute
+  '/ota/opportunities': typeof OtaOpportunitiesRoute
+  '/ota/performance': typeof OtaPerformanceRoute
+  '/ota/settings': typeof OtaSettingsRoute
+  '/ota/': typeof OtaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/campaign'
+    | '/canvas'
+    | '/ota'
+    | '/roi'
+    | '/structured'
+    | '/marketing/in-property'
+    | '/marketing/invites'
+    | '/marketing/media'
+    | '/marketing/promotions'
+    | '/marketing/transactional'
+    | '/ota/guests'
+    | '/ota/journey'
+    | '/ota/offer'
+    | '/ota/opportunities'
+    | '/ota/performance'
+    | '/ota/settings'
+    | '/ota/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/analytics'
+    | '/campaign'
+    | '/canvas'
+    | '/roi'
+    | '/structured'
+    | '/marketing/in-property'
+    | '/marketing/invites'
+    | '/marketing/media'
+    | '/marketing/promotions'
+    | '/marketing/transactional'
+    | '/ota/guests'
+    | '/ota/journey'
+    | '/ota/offer'
+    | '/ota/opportunities'
+    | '/ota/performance'
+    | '/ota/settings'
+    | '/ota'
+  id:
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/campaign'
+    | '/canvas'
+    | '/ota'
+    | '/roi'
+    | '/structured'
+    | '/marketing/in-property'
+    | '/marketing/invites'
+    | '/marketing/media'
+    | '/marketing/promotions'
+    | '/marketing/transactional'
+    | '/ota/guests'
+    | '/ota/journey'
+    | '/ota/offer'
+    | '/ota/opportunities'
+    | '/ota/performance'
+    | '/ota/settings'
+    | '/ota/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  CampaignRoute: typeof CampaignRoute
+  CanvasRoute: typeof CanvasRoute
+  OtaRoute: typeof OtaRouteWithChildren
+  RoiRoute: typeof RoiRoute
+  StructuredRoute: typeof StructuredRoute
+  MarketingInPropertyRoute: typeof MarketingInPropertyRoute
+  MarketingInvitesRoute: typeof MarketingInvitesRoute
+  MarketingMediaRoute: typeof MarketingMediaRoute
+  MarketingPromotionsRoute: typeof MarketingPromotionsRoute
+  MarketingTransactionalRoute: typeof MarketingTransactionalRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +277,170 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campaign': {
+      id: '/campaign'
+      path: '/campaign'
+      fullPath: '/campaign'
+      preLoaderRoute: typeof CampaignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/canvas': {
+      id: '/canvas'
+      path: '/canvas'
+      fullPath: '/canvas'
+      preLoaderRoute: typeof CanvasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ota': {
+      id: '/ota'
+      path: '/ota'
+      fullPath: '/ota'
+      preLoaderRoute: typeof OtaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roi': {
+      id: '/roi'
+      path: '/roi'
+      fullPath: '/roi'
+      preLoaderRoute: typeof RoiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/structured': {
+      id: '/structured'
+      path: '/structured'
+      fullPath: '/structured'
+      preLoaderRoute: typeof StructuredRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing/in-property': {
+      id: '/marketing/in-property'
+      path: '/marketing/in-property'
+      fullPath: '/marketing/in-property'
+      preLoaderRoute: typeof MarketingInPropertyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing/invites': {
+      id: '/marketing/invites'
+      path: '/marketing/invites'
+      fullPath: '/marketing/invites'
+      preLoaderRoute: typeof MarketingInvitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing/media': {
+      id: '/marketing/media'
+      path: '/marketing/media'
+      fullPath: '/marketing/media'
+      preLoaderRoute: typeof MarketingMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing/promotions': {
+      id: '/marketing/promotions'
+      path: '/marketing/promotions'
+      fullPath: '/marketing/promotions'
+      preLoaderRoute: typeof MarketingPromotionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketing/transactional': {
+      id: '/marketing/transactional'
+      path: '/marketing/transactional'
+      fullPath: '/marketing/transactional'
+      preLoaderRoute: typeof MarketingTransactionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ota/': {
+      id: '/ota/'
+      path: '/'
+      fullPath: '/ota/'
+      preLoaderRoute: typeof OtaIndexRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/guests': {
+      id: '/ota/guests'
+      path: '/guests'
+      fullPath: '/ota/guests'
+      preLoaderRoute: typeof OtaGuestsRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/journey': {
+      id: '/ota/journey'
+      path: '/journey'
+      fullPath: '/ota/journey'
+      preLoaderRoute: typeof OtaJourneyRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/offer': {
+      id: '/ota/offer'
+      path: '/offer'
+      fullPath: '/ota/offer'
+      preLoaderRoute: typeof OtaOfferRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/opportunities': {
+      id: '/ota/opportunities'
+      path: '/opportunities'
+      fullPath: '/ota/opportunities'
+      preLoaderRoute: typeof OtaOpportunitiesRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/performance': {
+      id: '/ota/performance'
+      path: '/performance'
+      fullPath: '/ota/performance'
+      preLoaderRoute: typeof OtaPerformanceRouteImport
+      parentRoute: typeof OtaRoute
+    }
+    '/ota/settings': {
+      id: '/ota/settings'
+      path: '/settings'
+      fullPath: '/ota/settings'
+      preLoaderRoute: typeof OtaSettingsRouteImport
+      parentRoute: typeof OtaRoute
+    }
   }
 }
 
+interface OtaRouteChildren {
+  OtaGuestsRoute: typeof OtaGuestsRoute
+  OtaJourneyRoute: typeof OtaJourneyRoute
+  OtaOfferRoute: typeof OtaOfferRoute
+  OtaOpportunitiesRoute: typeof OtaOpportunitiesRoute
+  OtaPerformanceRoute: typeof OtaPerformanceRoute
+  OtaSettingsRoute: typeof OtaSettingsRoute
+  OtaIndexRoute: typeof OtaIndexRoute
+}
+
+const OtaRouteChildren: OtaRouteChildren = {
+  OtaGuestsRoute: OtaGuestsRoute,
+  OtaJourneyRoute: OtaJourneyRoute,
+  OtaOfferRoute: OtaOfferRoute,
+  OtaOpportunitiesRoute: OtaOpportunitiesRoute,
+  OtaPerformanceRoute: OtaPerformanceRoute,
+  OtaSettingsRoute: OtaSettingsRoute,
+  OtaIndexRoute: OtaIndexRoute,
+}
+
+const OtaRouteWithChildren = OtaRoute._addFileChildren(OtaRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  CampaignRoute: CampaignRoute,
+  CanvasRoute: CanvasRoute,
+  OtaRoute: OtaRouteWithChildren,
+  RoiRoute: RoiRoute,
+  StructuredRoute: StructuredRoute,
+  MarketingInPropertyRoute: MarketingInPropertyRoute,
+  MarketingInvitesRoute: MarketingInvitesRoute,
+  MarketingMediaRoute: MarketingMediaRoute,
+  MarketingPromotionsRoute: MarketingPromotionsRoute,
+  MarketingTransactionalRoute: MarketingTransactionalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
