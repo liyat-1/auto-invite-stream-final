@@ -460,11 +460,21 @@ const SEEDS: Seed[] = [
 ];
 
 const PROMOTIONS: Promotion[] = [
-  { id: "dining-10", name: "10% off dining", detail: "Save 10% at the hotel restaurant during this stay.", code: "DINE10" },
-  { id: "return-15", name: "15% off next stay", detail: "A direct-booking incentive for a future visit.", code: "RETURN15" },
-  { id: "return-20", name: "20% off next stay", detail: "A stronger win-back offer for lapsed guests.", code: "WELCOME20" },
-  { id: "spa-15", name: "15% off spa", detail: "Save on one spa treatment booked during the stay.", code: "SPA15" },
-  { id: "late-checkout", name: "Complimentary late checkout", detail: "Extend checkout to 2pm, subject to availability.", code: "STAYLATE" },
+  { id: "dining-10", name: "10% off dining", detail: "Save 10% at the hotel restaurant during this stay.", code: "DINE10", codeType: "promo", discountPercent: 10, tagline: "🍽️ Dinner on a better rate", bannerStyle: "amber" },
+  { id: "return-15", name: "15% off next stay", detail: "A direct-booking incentive for a future visit.", code: "RETURN15", codeType: "promo", discountPercent: 15, tagline: "The best rate", bannerStyle: "midnight" },
+  { id: "return-20", name: "20% off next stay", detail: "A stronger win-back offer for lapsed guests.", code: "WELCOME20", codeType: "promo", discountPercent: 20, tagline: "🎁 20% off, just for you", bannerStyle: "rose" },
+  { id: "spa-15", name: "15% off spa", detail: "Save on one spa treatment booked during the stay.", code: "SPA15", codeType: "promo", discountPercent: 15, tagline: "💆 Unwind for less", bannerStyle: "emerald" },
+  { id: "late-checkout", name: "Complimentary late checkout", detail: "Extend checkout to 2pm, subject to availability.", code: "STAYLATE", codeType: "promo", tagline: "⏰ Stay in bed until 2pm", bannerStyle: "plum" },
+  { id: "breakfast-free", name: "Breakfast included", detail: "Breakfast for two added to every direct booking.", code: "WAKEUP", codeType: "rate", tagline: "☕ Breakfast is on us", bannerStyle: "sunset" },
+  { id: "third-night", name: "Third night free", detail: "Book three nights and only pay for two.", code: "STAY3PAY2", codeType: "rate", minNights: 3, tagline: "🌙 Third night free", bannerStyle: "slate" },
+  { id: "weekend-12", name: "12% off weekends", detail: "Friday and Saturday stays booked direct.", code: "WEEKEND12", codeType: "promo", discountPercent: 12, minNights: 2, tagline: "🥂 Weekends for less", bannerStyle: "teal" },
+  { id: "early-bird-18", name: "Early bird 18% off", detail: "For guests booking more than 60 days ahead.", code: "EARLY18", codeType: "rate", discountPercent: 18, tagline: "🐦 Book early, save more", bannerStyle: "midnight" },
+  { id: "corporate-10", name: "Corporate rate", detail: "Negotiated rate for business travellers.", code: "CORP-4471", codeType: "corporate", discountPercent: 10, tagline: "💼 Your company rate", bannerStyle: "graphite" },
+  { id: "room-upgrade", name: "Free room upgrade", detail: "Next category up, subject to availability at check-in.", code: "UPGRADEME", codeType: "promo", tagline: "🛏️ A bigger room, same price", bannerStyle: "plum" },
+  { id: "parking-free", name: "Free parking", detail: "On-site parking included for the whole stay.", code: "PARKFREE", codeType: "promo", tagline: "🚗 Parking included", bannerStyle: "slate" },
+  { id: "family-kids-stay", name: "Kids stay free", detail: "Up to two children in the same room at no extra cost.", code: "FAMILY0", codeType: "rate", tagline: "👨‍👩‍👧 Kids stay free", bannerStyle: "teal" },
+  { id: "longstay-25", name: "25% off long stays", detail: "Five nights or more, booked direct.", code: "LONG25", codeType: "rate", discountPercent: 25, minNights: 5, tagline: "🧳 Stay longer, save more", bannerStyle: "emerald" },
+  { id: "welcome-drink", name: "Welcome drink", detail: "A drink at the bar on arrival for every guest.", code: "CHEERS", codeType: "promo", tagline: "🍸 First drink is ours", bannerStyle: "sunset" },
 ];
 
 function variantFrom(seed: Seed, key: AudienceKey): Variant {
