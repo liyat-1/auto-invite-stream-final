@@ -60,3 +60,13 @@
 - [x] Square off remaining pill and large-radius shapes across marketing (max 8px, most 3px)
 - [x] Remove superseded MediaDock / PromoDropOverlay / StrategyBar components
 - [x] Type check passes; verify tools section, promo creation, and rounding at desktop and mobile widths
+
+## Promotion editor overlay and banner templates
+
+- [x] Pop-up overlay for creating and editing promotions: Details section (code beside code type) plus a Banner design section with a live guest preview
+- [x] Five banner layout templates (Ribbon, Ticket, Spotlight, Frame, Minimal) with the eight colour themes
+- [x] Logo and background photo slots fed from the media library (demo hotel emblem added under a new Logos folder; uploads supported via the picker)
+- [x] Editable banner wording: kicker line, property name, and headline with emoji picker
+- [x] Edit and Assign separated on promotion cards; cards show scaled live banner thumbnails
+- [x] Verified create/save/reopen, edit-existing, template and colour persistence, logo pick, and mobile width — no console errors
+
