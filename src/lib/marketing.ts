@@ -469,7 +469,7 @@ const PROMOTIONS: Promotion[] = [
   { id: "third-night", name: "Third night free", detail: "Book three nights and only pay for two.", code: "STAY3PAY2", codeType: "rate", minNights: 3, tagline: "🌙 Third night free", bannerStyle: "slate" },
   { id: "weekend-12", name: "12% off weekends", detail: "Friday and Saturday stays booked direct.", code: "WEEKEND12", codeType: "promo", discountPercent: 12, minNights: 2, tagline: "🥂 Weekends for less", bannerStyle: "teal" },
   { id: "early-bird-18", name: "Early bird 18% off", detail: "For guests booking more than 60 days ahead.", code: "EARLY18", codeType: "rate", discountPercent: 18, tagline: "🐦 Book early, save more", bannerStyle: "midnight" },
-  { id: "corporate-10", name: "Corporate rate", detail: "Negotiated rate for business travellers.", code: "CORP-4471", codeType: "corporate", discountPercent: 10, tagline: "💼 Your company rate", bannerStyle: "graphite" },
+  { id: "corporate-10", name: "Corporate rate", detail: "Negotiated rate for business travellers.", code: "CORP-4471", codeType: "corporate", discountPercent: 10, tagline: "💼 Your company rate", bannerStyle: "slate" },
   { id: "room-upgrade", name: "Free room upgrade", detail: "Next category up, subject to availability at check-in.", code: "UPGRADEME", codeType: "promo", tagline: "🛏️ A bigger room, same price", bannerStyle: "plum" },
   { id: "parking-free", name: "Free parking", detail: "On-site parking included for the whole stay.", code: "PARKFREE", codeType: "promo", tagline: "🚗 Parking included", bannerStyle: "slate" },
   { id: "family-kids-stay", name: "Kids stay free", detail: "Up to two children in the same room at no extra cost.", code: "FAMILY0", codeType: "rate", tagline: "👨‍👩‍👧 Kids stay free", bannerStyle: "teal" },
