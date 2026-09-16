@@ -30,6 +30,7 @@ export function PromotionsPage() {
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [durationDays, setDurationDays] = useState("");
+  const [bannerStyle, setBannerStyle] = useState<string>(BANNER_THEMES[0].id);
 
   const q = query.trim().toLowerCase();
   const list = promotions.filter(
