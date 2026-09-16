@@ -225,9 +225,67 @@ function BadgeBanner({ ctx }: { ctx: BannerCtx }) {
   );
 }
 
-function BannerFooter({ promotion, showCode = true }: { promotion: BannerPromotion; showCode?: boolean }) {
+function UpgradeBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, photo, promotion } = ctx;
+  return (
+    <div className="bg-card">
+      <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
+        {photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 to-foreground/15" />
+        <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+          <p className="text-[8.5px] font-bold uppercase tracking-[0.18em] text-white/80">{kicker}</p>
+          <p className="mt-1 text-[15px] font-semibold leading-tight">{headline}</p>
+        </div>
+      </div>
+      <div className="p-3.5">
+        <div className="flex items-start gap-2.5">
+          {logo ? <img src={logo} alt="" loading="lazy" className="size-8 shrink-0 rounded-md object-contain" /> : <span className="grid size-8 shrink-0 place-items-center rounded-md bg-brand-soft text-[15px]">▣</span>}
+          <div className="min-w-0"><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Room upgrade</p><p className="text-[13px] font-semibold text-foreground">{promotion.name}</p></div>
+        </div>
+        <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-md bg-muted/60 px-3 py-2.5 text-[10px]">
+          <span className="text-muted-foreground">Your stay</span><span style={{ color: theme.swatch }}>→</span><span className="text-right font-semibold" style={{ color: theme.swatch }}>{promotion.discountPercent ? `${promotion.discountPercent}% saving` : "Upgraded stay"}</span>
+        </div>
+        <p className="mt-2 text-[10.5px] leading-relaxed text-muted-foreground">{promotion.detail}</p>
+        <p className="mt-2 text-[9.5px] font-medium text-muted-foreground">{propertyName}</p>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, photo, promotion } = ctx;
+  return (
+    <div className="bg-card">
+      <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
+        {photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
+        <div className="absolute inset-0 bg-foreground/45" />
+        <div className="relative flex h-full flex-col justify-end p-3 text-white"><p className="text-[8.5px] font-bold uppercase tracking-[0.18em] text-white/80">{kicker}</p><p className="mt-1 text-[15px] font-semibold leading-tight">{headline}</p></div>
+      </div>
+      <div className="p-3.5">
+        <div className="flex items-center gap-2.5">{logo ? <img src={logo} alt="" loading="lazy" className="size-8 rounded-md object-contain" /> : <span className="grid size-8 rounded-md bg-brand-soft place-items-center text-brand">◷</span>}<div><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Flexible timing</p><p className="text-[13px] font-semibold text-foreground">{promotion.name}</p></div></div>
+        <div className="mt-3 rounded-md bg-muted/60 px-3 py-2.5"><div className="flex justify-between text-[9.5px] text-muted-foreground"><span>11:00</span><strong style={{ color: theme.swatch }}>Your stay</strong><span>15:00</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card"><span className="block h-full w-2/3 rounded-full" style={{ backgroundColor: theme.swatch }} /></div></div>
+        <p className="mt-2 text-[10.5px] leading-relaxed text-muted-foreground">{promotion.detail}</p>
+        <p className="mt-2 text-[9.5px] font-medium text-muted-foreground">{propertyName}</p>
+      </div>
+    </div>
+  );
+}
+
+function IncludedBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, photo, promotion } = ctx;
+  const benefits = [promotion.detail, promotion.discountPercent ? `${promotion.discountPercent}% off your stay` : "Included with this offer", promotion.minNights ? `Available for stays of ${promotion.minNights}+ nights` : "Available on eligible stays"];
+  return (
+    <div className="bg-card">
+      <div className={`relative h-28 overflow-hidden bg-gradient-to-br ${theme.gradient}`}>{photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}<div className="absolute inset-0 bg-gradient-to-t from-foreground/75 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-3 text-white"><p className="text-[8.5px] font-bold uppercase tracking-[0.18em] text-white/80">{kicker}</p><p className="mt-1 text-[15px] font-semibold leading-tight">{headline}</p></div></div>
+      <div className="p-3.5"><div className="flex items-center gap-2.5">{logo ? <img src={logo} alt="" loading="lazy" className="size-8 rounded-md object-contain" /> : <span className="grid size-8 place-items-center rounded-md bg-brand-soft text-brand">◇</span>}<div><p className="text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Included perks</p><p className="text-[13px] font-semibold text-foreground">{promotion.name}</p></div></div><div className="mt-3 space-y-1.5">{benefits.map((benefit) => <p key={benefit} className="flex gap-2 text-[10.5px] leading-relaxed text-muted-foreground"><span style={{ color: theme.swatch }}>✓</span><span>{benefit}</span></p>)}</div><p className="mt-2 text-[9.5px] font-medium text-muted-foreground">{propertyName}</p></div>
+    </div>
+  );
+}
+
+function BannerFooter({ promotion, showCode = true, showDescription = true }: { promotion: BannerPromotion; showCode?: boolean; showDescription?: boolean }) {
   return (
     <div className="space-y-1 border-t border-border/60 px-3.5 py-2.5">
+      {showDescription && promotion.detail && <p className="text-[11px] leading-relaxed text-card-foreground">{promotion.detail}</p>}
       {showCode && (
         <p className="text-[11.5px] font-semibold text-card-foreground">
           {CODE_TYPE_LABEL[promotion.codeType ?? "promo"]}: {promotion.code || "—"}
@@ -280,6 +338,12 @@ export function PromoBanner({
       <EditorialBanner ctx={ctx} />
     ) : template === "badge" ? (
       <BadgeBanner ctx={ctx} />
+    ) : template === "upgrade" ? (
+      <UpgradeBanner ctx={ctx} />
+    ) : template === "schedule" ? (
+      <ScheduleBanner ctx={ctx} />
+    ) : template === "included" ? (
+      <IncludedBanner ctx={ctx} />
     ) : (
       <RibbonBanner ctx={ctx} />
     );
@@ -287,7 +351,7 @@ export function PromoBanner({
   return (
     <div className={`overflow-hidden rounded-lg border border-border bg-card shadow-card ${className}`}>
       {body}
-      <BannerFooter promotion={promotion} showCode={template !== "ticket"} />
+      <BannerFooter promotion={promotion} showCode={template !== "ticket"} showDescription={!(["upgrade", "schedule", "included"] as string[]).includes(template)} />
     </div>
   );
 }

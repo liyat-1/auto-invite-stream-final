@@ -32,7 +32,7 @@ export function PromotionSelector({
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
-      <DialogContent className="max-h-[86vh] max-w-2xl overflow-hidden border-border bg-card p-0 shadow-float">
+      <DialogContent overlayClassName="z-[80]" className="z-[81] max-h-[86vh] max-w-2xl overflow-hidden border-border bg-card p-0 shadow-float">
         <DialogHeader className="border-b border-border px-5 py-4 pr-12">
           <DialogTitle className="text-[16px]">Promotion for {campaignName}</DialogTitle>
           <DialogDescription>Select the offer you’d like to include in this campaign.</DialogDescription>

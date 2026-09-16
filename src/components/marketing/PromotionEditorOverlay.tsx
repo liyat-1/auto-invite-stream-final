@@ -72,6 +72,15 @@ function TemplateGlyph({ id, swatch }: { id: string; swatch: string }) {
       {id === "badge" && (
         <div className="grid size-full place-items-center rounded-[2px] bg-muted"><span className="grid size-8 place-items-center rounded-full text-[9px] font-black text-white" style={{ backgroundColor: swatch }}>%</span></div>
       )}
+      {id === "upgrade" && (
+        <div className="grid size-full grid-rows-[1fr_auto] overflow-hidden rounded-[2px] border border-border"><span style={{ backgroundColor: swatch }} /><span className="grid grid-cols-[1fr_auto_1fr] gap-1 bg-card px-1.5 py-1"><i className="h-1 bg-muted-foreground/25" /><b className="text-[7px]" style={{ color: swatch }}>→</b><i className="h-1 bg-muted-foreground/35" /></span></div>
+      )}
+      {id === "schedule" && (
+        <div className="grid size-full grid-rows-[1fr_auto] overflow-hidden rounded-[2px] border border-border"><span style={{ backgroundColor: swatch }} /><span className="px-1.5 py-1"><i className="block h-1 rounded-full bg-muted"><b className="block h-full w-2/3 rounded-full" style={{ backgroundColor: swatch }} /></i></span></div>
+      )}
+      {id === "included" && (
+        <div className="grid size-full grid-cols-[2fr_3fr] overflow-hidden rounded-[2px] border border-border"><span style={{ backgroundColor: swatch }} /><span className="grid content-center gap-1 px-2"><i className="h-1 bg-muted-foreground/35" /><i className="h-1 bg-muted-foreground/25" /><i className="h-1 bg-muted-foreground/20" /></span></div>
+      )}
     </div>
   );
 }
