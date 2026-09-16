@@ -88,4 +88,4 @@
 - [x] Add modern promotion banner templates
 - [x] Place promotions naturally before email buttons
 - [x] Replace unclear starter promotion wording
-- [ ] Verify updated workflows and previews
+- [x] Verify updated workflows and previews
