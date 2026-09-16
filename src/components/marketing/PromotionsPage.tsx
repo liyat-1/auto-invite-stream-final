@@ -67,6 +67,7 @@ export function PromotionsPage() {
     setStartsAt("");
     setEndsAt("");
     setDurationDays("");
+    setBannerStyle(BANNER_THEMES[0].id);
     setCreating(false);
   };
 
