@@ -72,11 +72,11 @@
 
 ## Promotion workflow and content previews
 
-- [ ] Stack campaign tools vertically on desktop and mobile
-- [ ] Separate promotion maintenance and assignment into tabs
-- [ ] Add duplicate and safe delete actions for promotions
-- [ ] Move promotion preview to the bottom of the promotion editor
-- [ ] Move campaign promotion controls below content with a Change action
-- [ ] Show attached promotions in text and email previews
-- [ ] Verify promotion workflows at desktop and mobile widths
+- [x] Stack campaign tools vertically on desktop and mobile
+- [x] Separate promotion maintenance and assignment into tabs
+- [x] Add duplicate and safe delete actions for promotions
+- [x] Move promotion preview to the bottom of the promotion editor
+- [x] Move campaign promotion controls below content with a Change action
+- [x] Show attached promotions in text and email previews
+- [x] Verify promotion workflows at desktop and mobile widths
 

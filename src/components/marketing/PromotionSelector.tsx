@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { Check, Gift, Plus, Search, X } from "lucide-react";
+import { Check, Gift, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { mutate, uid, useMarketing } from "@/lib/marketing";
+import { useMarketing } from "@/lib/marketing";
 
 export function PromotionSelector({
   open,
@@ -23,31 +23,12 @@ export function PromotionSelector({
 }) {
   const { promotions } = useMarketing();
   const [query, setQuery] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [name, setName] = useState("");
-  const [detail, setDetail] = useState("");
-  const [code, setCode] = useState("");
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return promotions.filter((promotion) =>
       !q || `${promotion.name} ${promotion.detail} ${promotion.code}`.toLowerCase().includes(q),
     );
   }, [promotions, query]);
-
-  const createPromotion = () => {
-    const cleanName = name.trim();
-    if (!cleanName) return;
-    const id = uid();
-    mutate((draft) => {
-      draft.promotions.push({ id, name: cleanName, detail: detail.trim() || "Custom hotel offer.", code: code.trim() });
-    });
-    onSelect(id);
-    setName("");
-    setDetail("");
-    setCode("");
-    setCreating(false);
-    onClose();
-  };
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
@@ -113,29 +94,9 @@ export function PromotionSelector({
             })}
           </div>
 
-          {creating ? (
-            <div className="mt-4 rounded-md border border-border bg-muted/35 p-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-[11.5px] font-semibold text-muted-foreground">Name
-                  <input value={name} onChange={(event) => setName(event.target.value)} className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground outline-none focus:border-brand" />
-                </label>
-                <label className="text-[11.5px] font-semibold text-muted-foreground">Promo code
-                  <input value={code} onChange={(event) => setCode(event.target.value)} className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground outline-none focus:border-brand" />
-                </label>
-              </div>
-              <label className="mt-3 block text-[11.5px] font-semibold text-muted-foreground">Offer details
-                <input value={detail} onChange={(event) => setDetail(event.target.value)} className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] text-foreground outline-none focus:border-brand" />
-              </label>
-              <div className="mt-3 flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setCreating(false)}><X size={14} />Cancel</Button>
-                <Button variant="brand" size="sm" onClick={createPromotion} disabled={!name.trim()}>Create and select</Button>
-              </div>
-            </div>
-          ) : (
-            <Button variant="ghost" size="sm" className="mt-3 text-brand" onClick={() => setCreating(true)}>
-              <Plus size={14} />Create promotion
-            </Button>
-          )}
+          <p className="mt-4 border-t border-border pt-3 text-[11.5px] text-muted-foreground">
+            Create or edit promotion content from the Promotions tab.
+          </p>
         </div>
 
         <DialogFooter className="border-t border-border px-5 py-3">
