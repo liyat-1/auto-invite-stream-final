@@ -420,6 +420,7 @@ const TEMPLATES: EmailTemplate[] = [
 ];
 
 export const FOLDERS = [
+  "Logos",
   "Just booked",
   "Before arrival",
   "During stay",
@@ -431,6 +432,7 @@ export const FOLDERS = [
 const DAY = 86_400_000;
 
 const MEDIA: MediaItem[] = [
+  { id: "m0", name: "Hotel-emblem.png", type: "image", folder: "Logos", size: "48 KB", dims: "512 × 512", url: hotelLogo, addedAt: Date.now() - 21 * DAY },
   { id: "m1", name: "Pool.jpg", type: "image", folder: "Hotel information", size: "1.2 MB", dims: "1600 × 1067", url: heroAmalfi, addedAt: Date.now() - 3600_000 },
   { id: "m2", name: "Lobby.jpg", type: "image", folder: "Hotel information", size: "980 KB", dims: "1440 × 960", url: heroValley, addedAt: Date.now() - 7200_000 },
   { id: "m3", name: "Suite-terrace.jpg", type: "image", folder: "Promotions", size: "1.6 MB", dims: "2000 × 1333", url: heroAmalfi, addedAt: Date.now() - DAY },
