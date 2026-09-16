@@ -10,6 +10,7 @@ import familyPool from "../assets/family-pool.jpg";
 import rooftopBar from "../assets/rooftop-bar.jpg";
 import suiteDetail from "../assets/suite-detail.jpg";
 import courtyard from "../assets/courtyard.jpg";
+import hotelLogo from "../assets/hotel-logo.png";
 
 /* ------------------------------------------------------------------ types */
 
@@ -202,6 +203,18 @@ export type Promotion = {
   durationDays?: number;
   /** Chosen banner colour/style id. Falls back to a deterministic tint. */
   bannerStyle?: string;
+  /** Chosen banner layout template. */
+  bannerTemplate?: string;
+  /** Small kicker line above the banner headline, e.g. "YOU UNLOCKED". */
+  kicker?: string;
+  /** Property name shown on the banner. */
+  propertyName?: string;
+  /** Media item used as the banner logo. */
+  logoId?: string;
+  /** Media item used as the banner background photo. */
+  bannerImageId?: string;
+  /** Last person to update this offer. */
+  updatedBy?: EditStamp;
 };
 
 /** Colour and style choices for the guest-facing offer banner. */
@@ -217,6 +230,23 @@ export const BANNER_THEMES = [
 ] as const;
 
 export type BannerTheme = (typeof BANNER_THEMES)[number];
+
+/** Layout templates for the guest-facing offer banner. */
+export const BANNER_TEMPLATES = [
+  { id: "ribbon", label: "Ribbon", desc: "Personal sticker with a tilted headline ribbon." },
+  { id: "ticket", label: "Ticket", desc: "Ticket stub with a perforated code section." },
+  { id: "spotlight", label: "Spotlight", desc: "Photo backdrop with a glowing centred headline." },
+  { id: "frame", label: "Frame", desc: "Classic certificate frame with a logo crest." },
+  { id: "minimal", label: "Minimal", desc: "Oversized discount figure with clean typography." },
+] as const;
+
+export type BannerTemplateId = (typeof BANNER_TEMPLATES)[number]["id"];
+
+/** Resolves a promotion's banner template, defaulting to the ribbon layout. */
+export function bannerTemplateOf(p: Pick<Promotion, "bannerTemplate">): BannerTemplateId {
+  const found = BANNER_TEMPLATES.find((t) => t.id === p.bannerTemplate);
+  return (found?.id ?? "ribbon") as BannerTemplateId;
+}
 
 export const CODE_TYPE_LABEL: Record<NonNullable<Promotion["codeType"]>, string> = {
   promo: "Promo code",
