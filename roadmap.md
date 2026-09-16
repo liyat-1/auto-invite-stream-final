@@ -80,3 +80,12 @@
 - [x] Show attached promotions in text and email previews
 - [x] Verify promotion workflows at desktop and mobile widths
 
+
+## Promotion presentation polish
+
+- [x] Add direct promotion removal inside campaign content editing
+- [x] Restyle the edit-content warning with clear warning hierarchy
+- [x] Add modern promotion banner templates
+- [x] Place promotions naturally before email buttons
+- [x] Replace unclear starter promotion wording
+- [x] Verify updated workflows and previews

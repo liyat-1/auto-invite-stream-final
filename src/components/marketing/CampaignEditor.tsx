@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Gift, RotateCcw, X } from "lucide-react";
+import { Check, Gift, RotateCcw, Trash2, X } from "lucide-react";
 import { TextEditor } from "./TextEditor";
 import { EmailEditor } from "./EmailEditor";
 import { PromoBanner } from "./PromoBanner";
@@ -138,7 +138,14 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setPromotionPicker(true)}>Change</Button>
+              <div className="flex items-center gap-2">
+                {activePromotion && (
+                  <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setPromotion(null)}>
+                    <Trash2 size={13} />Remove
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => setPromotionPicker(true)}>{activePromotion ? "Change" : "Add promotion"}</Button>
+              </div>
             </div>
             {activePromotion && (
               <div className="mx-auto mt-4 max-w-md">

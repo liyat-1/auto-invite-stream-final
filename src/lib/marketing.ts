@@ -238,6 +238,9 @@ export const BANNER_TEMPLATES = [
   { id: "spotlight", label: "Spotlight", desc: "Photo backdrop with a glowing centred headline." },
   { id: "frame", label: "Frame", desc: "Classic certificate frame with a logo crest." },
   { id: "minimal", label: "Minimal", desc: "Oversized discount figure with clean typography." },
+  { id: "split", label: "Split", desc: "Modern image panel paired with crisp offer details." },
+  { id: "editorial", label: "Editorial", desc: "Bold magazine typography with refined spacing." },
+  { id: "badge", label: "Badge", desc: "A confident central offer badge over rich imagery." },
 ] as const;
 
 export type BannerTemplateId = (typeof BANNER_TEMPLATES)[number]["id"];
@@ -492,7 +495,7 @@ const SEEDS: Seed[] = [
 ];
 
 const PROMOTIONS: Promotion[] = [
-  { id: "dining-10", name: "10% off dining", detail: "Save 10% at the hotel restaurant during this stay.", code: "DINE10", codeType: "promo", discountPercent: 10, tagline: "🍽️ Dinner on a better rate", bannerStyle: "amber" },
+  { id: "dining-10", name: "10% off dining", detail: "Save 10% on dinner at the hotel restaurant during this stay.", code: "DINE10", codeType: "promo", discountPercent: 10, tagline: "🍽️ 10% off dinner", bannerStyle: "amber" },
   { id: "return-15", name: "15% off next stay", detail: "A direct-booking incentive for a future visit.", code: "RETURN15", codeType: "promo", discountPercent: 15, tagline: "The best rate", bannerStyle: "midnight" },
   { id: "return-20", name: "20% off next stay", detail: "A stronger win-back offer for lapsed guests.", code: "WELCOME20", codeType: "promo", discountPercent: 20, tagline: "🎁 20% off, just for you", bannerStyle: "rose" },
   { id: "spa-15", name: "15% off spa", detail: "Save on one spa treatment booked during the stay.", code: "SPA15", codeType: "promo", discountPercent: 15, tagline: "💆 Unwind for less", bannerStyle: "emerald" },
@@ -621,7 +624,9 @@ function hydrate() {
             // keep saved offers, and add any starter offers added since
             promotions: parsed.promotions?.length
               ? [
-                  ...parsed.promotions,
+                  ...parsed.promotions.map((promotion) => promotion.id === "dining-10" && promotion.tagline === "🍽️ Dinner on a better rate"
+                    ? { ...promotion, detail: "Save 10% on dinner at the hotel restaurant during this stay.", tagline: "🍽️ 10% off dinner" }
+                    : promotion),
                   ...PROMOTIONS.filter((seed) => !parsed.promotions.some((p) => p.id === seed.id)),
                 ]
               : PROMOTIONS,

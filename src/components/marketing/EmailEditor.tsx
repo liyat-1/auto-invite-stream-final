@@ -74,6 +74,11 @@ export function EmailEditor({
 
   const heroOf = (i: number) => template?.hero ?? PHOTO_POOL[i % PHOTO_POOL.length];
   const photo = heroOf(0);
+  const offer = promotion ? (
+    <div className="my-5">
+      <PromoBanner promotion={promotion} property="Holiday Inn Times Square" className="shadow-none" />
+    </div>
+  ) : null;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -177,6 +182,7 @@ export function EmailEditor({
                 <p className="mx-auto mt-2.5 max-w-[320px] whitespace-pre-wrap text-[13.5px] leading-relaxed text-white/85">
                   {renderPreview(value.body)}
                 </p>
+                {offer}
                 <span
                   className="mt-5 inline-block rounded bg-white px-6 py-3 text-[13px] font-semibold"
                   style={{ color: accent }}
@@ -197,6 +203,7 @@ export function EmailEditor({
                 <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-muted-foreground">
                   {renderPreview(value.body)}
                 </p>
+                {offer}
                 <span
                   className="mt-4 inline-block rounded px-4 py-2.5 text-[12.5px] font-semibold text-white"
                   style={{ background: accent }}
@@ -238,18 +245,14 @@ export function EmailEditor({
                 </div>
               )}
 
+              {offer}
+
               <span
                 className="mt-5 inline-block rounded px-5 py-3 text-[13px] font-semibold text-white"
                 style={{ background: accent }}
               >
                 {value.ctaLabel}
               </span>
-            </div>
-          )}
-
-          {promotion && (
-            <div className="border-t border-border bg-muted/30 px-5 py-5">
-              <PromoBanner promotion={promotion} property="Holiday Inn Times Square" className="shadow-none" />
             </div>
           )}
 
