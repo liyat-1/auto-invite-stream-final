@@ -89,3 +89,12 @@
 - [x] Place promotions naturally before email buttons
 - [x] Replace unclear starter promotion wording
 - [x] Verify updated workflows and previews
+
+## Promotion banner and editor cleanup
+
+- [x] Convert campaign content editing from a full-screen takeover to a large popup
+- [x] Fix promotion chooser layering and restore interaction after selecting, cancelling, or removing
+- [x] Show the short offer description across all banner templates
+- [x] Add Upgrade card, Schedule card, and Included perks image-led templates
+- [x] Add matching template previews to the promotion editor
+- [x] Verify the editor and chooser at desktop and mobile widths
