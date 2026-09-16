@@ -5,7 +5,6 @@ import { EmailEditor } from "./EmailEditor";
 import { PromoBanner } from "./PromoBanner";
 import { PromotionSelector } from "./PromotionSelector";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -102,15 +101,11 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
   const segment = (active: boolean, disabled = false) => `rounded px-3 py-1.5 text-[12.5px] font-medium transition-colors ${active ? "bg-card text-card-foreground shadow-card" : disabled ? "cursor-not-allowed text-muted-foreground/45" : "text-muted-foreground hover:text-foreground"}`;
 
   return (
-    <Dialog open onOpenChange={(open) => !open && closeSafely()}>
-      <DialogContent className="flex h-[92vh] max-h-[92vh] w-[calc(100vw-1rem)] max-w-6xl flex-col gap-0 overflow-hidden border-border bg-canvas p-0 shadow-float sm:w-[96vw] [&>button]:hidden">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Edit {draft.name}</DialogTitle>
-          <DialogDescription>Edit campaign text, email, and attached promotion.</DialogDescription>
-        </DialogHeader>
+    <div className="fixed inset-0 z-[60] grid place-items-center bg-foreground/70 p-2 sm:p-4" onMouseDown={(event) => event.target === event.currentTarget && closeSafely()}>
+      <section role="dialog" aria-modal="true" aria-labelledby="campaign-editor-title" className="flex h-[92vh] max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg border border-border bg-canvas shadow-float">
       <header className="flex flex-col gap-3 border-b border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="min-w-0"><p className="text-[10.5px] font-medium text-muted-foreground">Automated invite</p><h2 className="truncate text-[17px] font-semibold text-card-foreground">{draft.name}</h2><p className="truncate text-[11.5px] text-muted-foreground">{STRATEGY_LABEL[draft.strategy]}</p></div>
+          <div className="min-w-0"><p className="text-[10.5px] font-medium text-muted-foreground">Automated invite</p><h2 id="campaign-editor-title" className="truncate text-[17px] font-semibold text-card-foreground">{draft.name}</h2><p className="truncate text-[11.5px] text-muted-foreground">{STRATEGY_LABEL[draft.strategy]}</p></div>
         </div>
         <div className="flex items-center gap-2"><span className={`mr-auto text-[11.5px] sm:mr-0 ${dirty ? "text-brand" : "text-muted-foreground"}`}>{dirty ? "Unsaved changes" : "All changes saved"}</span><Button variant="brand" size="sm" disabled={!dirty} onClick={requestSave}><Check size={14} />Save changes</Button><Button variant="ghost" size="icon" onClick={closeSafely} aria-label="Close editor"><X size={18} /></Button></div>
       </header>
@@ -178,7 +173,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
           <AlertDialogFooter><AlertDialogCancel>{confirm === "leave" ? "Stay and save" : "Cancel"}</AlertDialogCancel><AlertDialogAction className="bg-brand text-brand-foreground hover:bg-brand/90" onClick={confirm === "leave" ? onClose : confirm === "save" ? save : revertCurrent}>{confirm === "leave" ? "Leave" : confirm === "save" ? "Save changes" : "Revert"}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </DialogContent>
-    </Dialog>
+      </section>
+    </div>
   );
 }
