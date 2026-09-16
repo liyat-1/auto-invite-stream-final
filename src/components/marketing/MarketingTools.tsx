@@ -81,7 +81,7 @@ export function MarketingTools({ campaigns }: { group?: CampaignGroup; campaigns
   const withMedia = campaigns.filter((c) => campaignMediaIds(c).length > 0);
 
   return (
-    <div className="grid gap-2 lg:grid-cols-3">
+    <div className="grid gap-2">
       <Panel
         icon={Layers}
         title="Manage channel strategy"

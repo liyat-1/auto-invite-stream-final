@@ -1,6 +1,7 @@
 import { ChevronLeft, Info, Camera, AppWindow, Mic } from "lucide-react";
 import { PhoneMockup } from "./PhoneMockup";
 import { renderTokens } from "@/lib/campaign";
+import { CODE_TYPE_LABEL, type Promotion } from "@/lib/marketing";
 
 /** iMessage-style SMS preview inside the shared iPhone frame. */
 export function SmsPreview({
@@ -9,12 +10,14 @@ export function SmsPreview({
   imageUrl,
   sender = "Hellas Gadgets",
   scale = 0.78,
+  promotion,
 }: {
   message: string;
   link?: string;
   imageUrl?: string | null;
   sender?: string;
   scale?: number;
+  promotion?: Promotion | null;
 }) {
   return (
     <PhoneMockup
@@ -52,6 +55,20 @@ export function SmsPreview({
             </p>
           )}
         </div>
+        {promotion && (
+          <div className="max-w-[85%] overflow-hidden rounded-[1.35rem] rounded-bl-md border border-zinc-200 bg-white shadow-sm">
+            <div className="bg-zinc-900 px-3.5 py-2.5 text-white">
+              <p className="text-[10px] font-semibold uppercase text-zinc-300">Your exclusive offer</p>
+              <p className="mt-0.5 text-[14px] font-semibold leading-snug">{promotion.tagline || promotion.name}</p>
+            </div>
+            <div className="px-3.5 py-2.5">
+              <p className="text-[12px] leading-snug text-zinc-600">{promotion.detail}</p>
+              <p className="mt-2 text-[12px] font-semibold text-blue-600">
+                {CODE_TYPE_LABEL[promotion.codeType ?? "promo"]}: {promotion.code}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="sticky bottom-0 mt-auto flex items-center gap-2.5 border-t border-zinc-200/80 bg-white/95 px-3 py-2.5 backdrop-blur">

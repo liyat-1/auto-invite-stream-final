@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Gift, RotateCcw, X } from "lucide-react";
 import { TextEditor } from "./TextEditor";
 import { EmailEditor } from "./EmailEditor";
+import { PromoBanner } from "./PromoBanner";
+import { PromotionSelector } from "./PromotionSelector";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -29,13 +31,14 @@ const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function CampaignEditor({ id, onClose }: { id: string; onClose: () => void }) {
   const marketing = useMarketing();
-  const { campaigns, promotions } = marketing;
+  const { campaigns } = marketing;
   const source = campaigns.find((campaign) => campaign.id === id);
   const [draft, setDraft] = useState<MarketingCampaign | null>(() => source ? clone(source) : null);
   const [baseline, setBaseline] = useState(() => source ? JSON.stringify(source) : "");
   const [audience, setAudience] = useState<AudienceKey>("direct");
   const [channel, setChannel] = useState<"text" | "email">("text");
   const [confirm, setConfirm] = useState<"leave" | "save" | "revert" | null>(null);
+  const [promotionPicker, setPromotionPicker] = useState(false);
   const dirty = useMemo(() => draft ? JSON.stringify(draft) !== baseline : false, [draft, baseline]);
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
   if (!source || !draft) return null;
   const variant = draft.variants[audience];
   const activeChannel = strategyHasEmail(draft.strategy) ? channel : "text";
+  const activePromotion = effectivePromotion(marketing, draft, audience);
   const closeSafely = () => dirty ? setConfirm("leave") : onClose();
   const save = () => {
     mutate((state) => {
@@ -65,6 +69,15 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
     copy.variants[audience].customization[kind] = true;
     copy.variants[audience].customized = copy.variants[audience].customization.text || copy.variants[audience].customization.email;
     copy.variants[audience].editedBy = { by: "Sevket Yilmaz", at: Date.now() };
+    return copy;
+  });
+  const setPromotion = (value: string | null | "inherit") => setDraft((current) => {
+    if (!current) return current;
+    const copy = clone(current);
+    const next = copy.variants[audience];
+    next.promotionMode = value === "inherit" ? "inherit" : value === null ? "none" : "custom";
+    next.promotionId = value === "inherit" || value === null ? null : value;
+    next.editedBy = { by: "Sevket Yilmaz", at: Date.now() };
     return copy;
   });
   const revertCurrent = () => {
@@ -103,7 +116,48 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
         <Button variant="ghost" size="sm" className="ml-auto" disabled={!variant.customization[activeChannel]} onClick={() => setConfirm("revert")}><RotateCcw size={13} />Revert content</Button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6"><div className="mx-auto max-w-6xl space-y-4"><section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 shadow-card"><div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-md bg-brand-soft text-brand"><Gift size={16} /></span><div><p className="text-[12.5px] font-semibold text-card-foreground">Promotion for {AUDIENCE_LABEL[audience]}</p><p className="text-[11px] text-muted-foreground">{effectivePromotion(marketing, draft, audience)?.name ?? "No promotion selected"}</p></div></div><select value={variant.promotionMode === "custom" ? variant.promotionId ?? "none" : variant.promotionMode} onChange={(event) => setDraft((current) => { if (!current) return current; const copy = clone(current); const value = event.target.value; copy.variants[audience].promotionMode = value === "inherit" ? "inherit" : value === "none" ? "none" : "custom"; copy.variants[audience].promotionId = value === "inherit" || value === "none" ? null : value; copy.variants[audience].editedBy = { by: "Sevket Yilmaz", at: Date.now() }; return copy; })} className="h-9 min-w-56 rounded-md border border-input bg-background px-3 text-[12.5px] text-foreground outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"><option value="inherit">Use global promotion</option><option value="none">No promotion</option>{promotions.map((promotion) => <option key={promotion.id} value={promotion.id}>{promotion.name}</option>)}</select></section><div className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">{activeChannel === "text" ? <TextEditor value={variant.text} onChange={(text) => setVariant({ ...variant, text }, "text")} /> : <EmailEditor value={variant.email} customized={variant.customization.email} onChange={(email) => setVariant({ ...variant, email }, "email")} />}</div></div></div>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-4">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
+            {activeChannel === "text" ? (
+              <TextEditor value={variant.text} promotion={activePromotion} onChange={(text) => setVariant({ ...variant, text }, "text")} />
+            ) : (
+              <EmailEditor value={variant.email} promotion={activePromotion} customized={variant.customization.email} onChange={(email) => setVariant({ ...variant, email }, "email")} />
+            )}
+          </div>
+
+          <section className="rounded-lg border border-border bg-card p-4 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-brand-soft text-brand"><Gift size={16} /></span>
+                <div className="min-w-0">
+                  <p className="text-[12.5px] font-semibold text-card-foreground">Promotion for {AUDIENCE_LABEL[audience]}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {activePromotion?.name ?? "No promotion selected"}
+                    {variant.promotionMode === "inherit" ? " · Global promotion" : ""}
+                  </p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setPromotionPicker(true)}>Change</Button>
+            </div>
+            {activePromotion && (
+              <div className="mx-auto mt-4 max-w-md">
+                <PromoBanner promotion={activePromotion} className="shadow-none" />
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+
+      <PromotionSelector
+        open={promotionPicker}
+        campaignName={`${draft.name} · ${AUDIENCE_LABEL[audience]}`}
+        selectedId={variant.promotionMode === "inherit" ? "inherit" : variant.promotionMode === "custom" ? variant.promotionId : null}
+        inheritedId={marketing.globalPromotions[audience]}
+        allowInherit
+        onClose={() => setPromotionPicker(false)}
+        onSelect={setPromotion}
+      />
 
       <AlertDialog open={confirm !== null} onOpenChange={(value) => !value && setConfirm(null)}>
         <AlertDialogContent className="border-border bg-card shadow-float">

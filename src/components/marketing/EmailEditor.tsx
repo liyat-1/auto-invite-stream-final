@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LayoutTemplate, Rows3 } from "lucide-react";
 import { TemplateLibrary } from "./TemplateLibrary";
 import { LayoutLibrary, LayoutThumb } from "./LayoutLibrary";
+import { PromoBanner } from "./PromoBanner";
 import {
   LAYOUT_LABEL,
   LAYOUT_PRESETS,
@@ -10,6 +11,7 @@ import {
   useMarketing,
   type EmailContent,
   type EmailLayout,
+  type Promotion,
 } from "@/lib/marketing";
 
 function Field({
@@ -53,10 +55,12 @@ export function EmailEditor({
   value,
   onChange,
   customized = false,
+  promotion,
 }: {
   value: EmailContent;
   onChange: (v: EmailContent) => void;
   customized?: boolean;
+  promotion?: Promotion | null;
 }) {
   const { templates } = useMarketing();
   const [lib, setLib] = useState(false);
@@ -240,6 +244,12 @@ export function EmailEditor({
               >
                 {value.ctaLabel}
               </span>
+            </div>
+          )}
+
+          {promotion && (
+            <div className="border-t border-border bg-muted/30 px-5 py-5">
+              <PromoBanner promotion={promotion} property="Holiday Inn Times Square" className="shadow-none" />
             </div>
           )}
 

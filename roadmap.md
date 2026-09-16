@@ -70,3 +70,13 @@
 - [x] Edit and Assign separated on promotion cards; cards show scaled live banner thumbnails
 - [x] Verified create/save/reopen, edit-existing, template and colour persistence, logo pick, and mobile width — no console errors
 
+## Promotion workflow and content previews
+
+- [x] Stack campaign tools vertically on desktop and mobile
+- [x] Separate promotion maintenance and assignment into tabs
+- [x] Add duplicate and safe delete actions for promotions
+- [x] Move promotion preview to the bottom of the promotion editor
+- [x] Move campaign promotion controls below content with a Change action
+- [x] Show attached promotions in text and email previews
+- [x] Verify promotion workflows at desktop and mobile widths
+
