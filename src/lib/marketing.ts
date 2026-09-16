@@ -586,7 +586,13 @@ function hydrate() {
             campaigns: parsed.campaigns.map(migrateCampaign),
             media: parsed.media?.length ? parsed.media : MEDIA,
             templates: TEMPLATES,
-            promotions: parsed.promotions?.length ? parsed.promotions : PROMOTIONS,
+            // keep saved offers, and add any starter offers added since
+            promotions: parsed.promotions?.length
+              ? [
+                  ...parsed.promotions,
+                  ...PROMOTIONS.filter((seed) => !parsed.promotions.some((p) => p.id === seed.id)),
+                ]
+              : PROMOTIONS,
             globalPromotions: parsed.globalPromotions ?? { direct: "dining-10", ota: null },
           };
           emit();
