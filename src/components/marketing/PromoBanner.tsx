@@ -169,6 +169,62 @@ function MinimalBanner({ ctx }: { ctx: BannerCtx }) {
   );
 }
 
+function SplitBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, photo, promotion } = ctx;
+  return (
+    <div className="grid min-h-[150px] grid-cols-[42%_58%] bg-card">
+      <div className={`relative overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
+        {photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
+        <div className="absolute inset-0 bg-foreground/20" />
+        <div className="relative grid h-full place-items-center p-3">
+          {logo ? <img src={logo} alt="" loading="lazy" className="max-h-14 max-w-[72px] rounded bg-card/90 object-contain p-1.5" /> : <span className="text-[28px] font-black text-white">{promotion.discountPercent ? `${promotion.discountPercent}%` : "★"}</span>}
+        </div>
+      </div>
+      <div className="flex min-w-0 flex-col justify-center px-4 py-5">
+        <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{propertyName}</p>
+        <p className="mt-2 text-[9.5px] font-bold uppercase" style={{ color: theme.swatch }}>{kicker}</p>
+        <p className="mt-1 text-[16px] font-extrabold uppercase leading-tight text-foreground">{headline}</p>
+        {promotion.code && <p className="mt-3 text-[10.5px] font-semibold text-muted-foreground">Use {promotion.code}</p>}
+      </div>
+    </div>
+  );
+}
+
+function EditorialBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, promotion } = ctx;
+  return (
+    <div className="relative overflow-hidden bg-card px-5 py-6">
+      <div className="absolute inset-y-0 left-0 w-2" style={{ backgroundColor: theme.swatch }} />
+      <div className="flex items-start justify-between gap-4 pl-2">
+        <div className="min-w-0">
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{propertyName} · {kicker}</p>
+          <p className="mt-2 max-w-[320px] text-[22px] font-black uppercase leading-[1.05] text-foreground">{headline}</p>
+          <p className="mt-3 text-[11px] font-semibold" style={{ color: theme.swatch }}>{promotion.discountPercent ? `${promotion.discountPercent}% off` : "Exclusive guest offer"}</p>
+        </div>
+        {logo && <img src={logo} alt="" loading="lazy" className="size-11 shrink-0 object-contain" />}
+      </div>
+    </div>
+  );
+}
+
+function BadgeBanner({ ctx }: { ctx: BannerCtx }) {
+  const { theme, kicker, propertyName, headline, logo, photo, promotion } = ctx;
+  return (
+    <div className={`relative min-h-[170px] overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
+      {photo && <img src={photo} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />}
+      <div className="absolute inset-0 bg-foreground/45" />
+      <div className="relative flex min-h-[170px] items-center justify-center p-5 text-center">
+        <div className="grid size-32 place-items-center rounded-full border border-white/60 bg-card/95 p-4 shadow-lift">
+          {logo && <img src={logo} alt="" loading="lazy" className="h-6 max-w-16 object-contain" />}
+          <p className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">{kicker}</p>
+          <p className="text-[14px] font-black uppercase leading-tight text-foreground">{headline}</p>
+          <p className="text-[9px] font-semibold" style={{ color: theme.swatch }}>{promotion.discountPercent ? `${promotion.discountPercent}% OFF` : propertyName}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BannerFooter({ promotion, showCode = true }: { promotion: BannerPromotion; showCode?: boolean }) {
   return (
     <div className="space-y-1 border-t border-border/60 px-3.5 py-2.5">
@@ -187,7 +243,7 @@ function BannerFooter({ promotion, showCode = true }: { promotion: BannerPromoti
 }
 
 /**
- * The offer banner a guest sees. Five layout templates, eight colour themes,
+ * The offer banner a guest sees. Eight layout templates, eight colour themes,
  * optional logo and background photo from the media library, and fully
  * editable wording. Used as the live preview while an offer is being edited
  * and as the visual for an offer everywhere else.
@@ -218,6 +274,12 @@ export function PromoBanner({
       <FrameBanner ctx={ctx} />
     ) : template === "minimal" ? (
       <MinimalBanner ctx={ctx} />
+    ) : template === "split" ? (
+      <SplitBanner ctx={ctx} />
+    ) : template === "editorial" ? (
+      <EditorialBanner ctx={ctx} />
+    ) : template === "badge" ? (
+      <BadgeBanner ctx={ctx} />
     ) : (
       <RibbonBanner ctx={ctx} />
     );

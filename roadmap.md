@@ -86,6 +86,6 @@
 - [x] Add direct promotion removal inside campaign content editing
 - [x] Restyle the edit-content warning with clear warning hierarchy
 - [x] Add modern promotion banner templates
-- [ ] Place promotions naturally before email buttons
+- [x] Place promotions naturally before email buttons
 - [x] Replace unclear starter promotion wording
 - [ ] Verify updated workflows and previews
