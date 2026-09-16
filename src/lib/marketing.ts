@@ -200,7 +200,23 @@ export type Promotion = {
   endsAt?: string;
   /** How many days the offer stays valid for a guest once they receive it. */
   durationDays?: number;
+  /** Chosen banner colour/style id. Falls back to a deterministic tint. */
+  bannerStyle?: string;
 };
+
+/** Colour and style choices for the guest-facing offer banner. */
+export const BANNER_THEMES = [
+  { id: "midnight", label: "Midnight blue", gradient: "from-[#1b3a6b] to-[#2f6fb5]", swatch: "#1b3a6b", ribbon: "bg-[#0f2c56]" },
+  { id: "rose", label: "Rose", gradient: "from-[#a8175e] to-[#d44c93]", swatch: "#c01f6f", ribbon: "bg-[#8c0f4c]" },
+  { id: "emerald", label: "Emerald", gradient: "from-[#0f4f46] to-[#23897a]", swatch: "#14655a", ribbon: "bg-[#0a3c35]" },
+  { id: "plum", label: "Plum", gradient: "from-[#5b2a83] to-[#8f5bc4]", swatch: "#6c33a0", ribbon: "bg-[#421c62]" },
+  { id: "amber", label: "Amber", gradient: "from-[#7a3410] to-[#c4712c]", swatch: "#9b4b17", ribbon: "bg-[#5c250a]" },
+  { id: "slate", label: "Graphite", gradient: "from-[#1f2430] to-[#4b5566]", swatch: "#2b3140", ribbon: "bg-[#141821]" },
+  { id: "teal", label: "Lagoon", gradient: "from-[#0b4a63] to-[#1f8fae]", swatch: "#0e5f7e", ribbon: "bg-[#073547]" },
+  { id: "sunset", label: "Sunset", gradient: "from-[#8a1f3d] to-[#e0673f]", swatch: "#b23a42", ribbon: "bg-[#68152c]" },
+] as const;
+
+export type BannerTheme = (typeof BANNER_THEMES)[number];
 
 export const CODE_TYPE_LABEL: Record<NonNullable<Promotion["codeType"]>, string> = {
   promo: "Promo code",
@@ -444,11 +460,21 @@ const SEEDS: Seed[] = [
 ];
 
 const PROMOTIONS: Promotion[] = [
-  { id: "dining-10", name: "10% off dining", detail: "Save 10% at the hotel restaurant during this stay.", code: "DINE10" },
-  { id: "return-15", name: "15% off next stay", detail: "A direct-booking incentive for a future visit.", code: "RETURN15" },
-  { id: "return-20", name: "20% off next stay", detail: "A stronger win-back offer for lapsed guests.", code: "WELCOME20" },
-  { id: "spa-15", name: "15% off spa", detail: "Save on one spa treatment booked during the stay.", code: "SPA15" },
-  { id: "late-checkout", name: "Complimentary late checkout", detail: "Extend checkout to 2pm, subject to availability.", code: "STAYLATE" },
+  { id: "dining-10", name: "10% off dining", detail: "Save 10% at the hotel restaurant during this stay.", code: "DINE10", codeType: "promo", discountPercent: 10, tagline: "🍽️ Dinner on a better rate", bannerStyle: "amber" },
+  { id: "return-15", name: "15% off next stay", detail: "A direct-booking incentive for a future visit.", code: "RETURN15", codeType: "promo", discountPercent: 15, tagline: "The best rate", bannerStyle: "midnight" },
+  { id: "return-20", name: "20% off next stay", detail: "A stronger win-back offer for lapsed guests.", code: "WELCOME20", codeType: "promo", discountPercent: 20, tagline: "🎁 20% off, just for you", bannerStyle: "rose" },
+  { id: "spa-15", name: "15% off spa", detail: "Save on one spa treatment booked during the stay.", code: "SPA15", codeType: "promo", discountPercent: 15, tagline: "💆 Unwind for less", bannerStyle: "emerald" },
+  { id: "late-checkout", name: "Complimentary late checkout", detail: "Extend checkout to 2pm, subject to availability.", code: "STAYLATE", codeType: "promo", tagline: "⏰ Stay in bed until 2pm", bannerStyle: "plum" },
+  { id: "breakfast-free", name: "Breakfast included", detail: "Breakfast for two added to every direct booking.", code: "WAKEUP", codeType: "rate", tagline: "☕ Breakfast is on us", bannerStyle: "sunset" },
+  { id: "third-night", name: "Third night free", detail: "Book three nights and only pay for two.", code: "STAY3PAY2", codeType: "rate", minNights: 3, tagline: "🌙 Third night free", bannerStyle: "slate" },
+  { id: "weekend-12", name: "12% off weekends", detail: "Friday and Saturday stays booked direct.", code: "WEEKEND12", codeType: "promo", discountPercent: 12, minNights: 2, tagline: "🥂 Weekends for less", bannerStyle: "teal" },
+  { id: "early-bird-18", name: "Early bird 18% off", detail: "For guests booking more than 60 days ahead.", code: "EARLY18", codeType: "rate", discountPercent: 18, tagline: "🐦 Book early, save more", bannerStyle: "midnight" },
+  { id: "corporate-10", name: "Corporate rate", detail: "Negotiated rate for business travellers.", code: "CORP-4471", codeType: "corporate", discountPercent: 10, tagline: "💼 Your company rate", bannerStyle: "slate" },
+  { id: "room-upgrade", name: "Free room upgrade", detail: "Next category up, subject to availability at check-in.", code: "UPGRADEME", codeType: "promo", tagline: "🛏️ A bigger room, same price", bannerStyle: "plum" },
+  { id: "parking-free", name: "Free parking", detail: "On-site parking included for the whole stay.", code: "PARKFREE", codeType: "promo", tagline: "🚗 Parking included", bannerStyle: "slate" },
+  { id: "family-kids-stay", name: "Kids stay free", detail: "Up to two children in the same room at no extra cost.", code: "FAMILY0", codeType: "rate", tagline: "👨‍👩‍👧 Kids stay free", bannerStyle: "teal" },
+  { id: "longstay-25", name: "25% off long stays", detail: "Five nights or more, booked direct.", code: "LONG25", codeType: "rate", discountPercent: 25, minNights: 5, tagline: "🧳 Stay longer, save more", bannerStyle: "emerald" },
+  { id: "welcome-drink", name: "Welcome drink", detail: "A drink at the bar on arrival for every guest.", code: "CHEERS", codeType: "promo", tagline: "🍸 First drink is ours", bannerStyle: "sunset" },
 ];
 
 function variantFrom(seed: Seed, key: AudienceKey): Variant {
@@ -560,7 +586,13 @@ function hydrate() {
             campaigns: parsed.campaigns.map(migrateCampaign),
             media: parsed.media?.length ? parsed.media : MEDIA,
             templates: TEMPLATES,
-            promotions: parsed.promotions?.length ? parsed.promotions : PROMOTIONS,
+            // keep saved offers, and add any starter offers added since
+            promotions: parsed.promotions?.length
+              ? [
+                  ...parsed.promotions,
+                  ...PROMOTIONS.filter((seed) => !parsed.promotions.some((p) => p.id === seed.id)),
+                ]
+              : PROMOTIONS,
             globalPromotions: parsed.globalPromotions ?? { direct: "dining-10", ota: null },
           };
           emit();

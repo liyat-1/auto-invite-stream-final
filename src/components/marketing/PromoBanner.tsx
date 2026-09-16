@@ -1,18 +1,16 @@
-import { CODE_TYPE_LABEL, CURRENT_USER, promotionValidity, type Promotion } from "@/lib/marketing";
+import { BANNER_THEMES, CODE_TYPE_LABEL, CURRENT_USER, promotionValidity, type Promotion } from "@/lib/marketing";
 
 /** Deterministic banner tint so every offer keeps the same colour everywhere. */
-const TINTS = [
-  "from-[#1b3a6b] to-[#2f6fb5]",
-  "from-[#a8175e] to-[#d44c93]",
-  "from-[#0f4f46] to-[#23897a]",
-  "from-[#5b2a83] to-[#8f5bc4]",
-  "from-[#7a3410] to-[#c4712c]",
-];
-
-export function bannerTint(seed: string) {
+export function bannerTheme(seed: string, chosen?: string) {
+  const picked = BANNER_THEMES.find((theme) => theme.id === chosen);
+  if (picked) return picked;
   let n = 0;
   for (let i = 0; i < seed.length; i += 1) n = (n + seed.charCodeAt(i)) % 997;
-  return TINTS[n % TINTS.length];
+  return BANNER_THEMES[n % BANNER_THEMES.length];
+}
+
+export function bannerTint(seed: string, chosen?: string) {
+  return bannerTheme(seed, chosen).gradient;
 }
 
 /**
@@ -31,17 +29,17 @@ export function PromoBanner({
 }) {
   const firstName = CURRENT_USER.name.split(" ")[0]?.toUpperCase() ?? "GUEST";
   const headline = (promotion.tagline || promotion.name || "The best rate").toUpperCase();
-  const tint = bannerTint(promotion.code || promotion.name || "offer");
+  const theme = bannerTheme(promotion.code || promotion.name || "offer", promotion.bannerStyle);
 
   return (
     <div className={`overflow-hidden rounded-lg border border-border bg-card shadow-card ${className}`}>
-      <div className={`relative bg-gradient-to-br ${tint} px-4 py-7`}>
+      <div className={`relative bg-gradient-to-br ${theme.gradient} px-4 py-7`}>
         <p className="text-right text-[11px] font-semibold text-white/90">{property}</p>
         <div className="relative mt-5 pb-3">
           <span className="absolute -top-3 left-1 z-10 -rotate-[4deg] rounded-[3px] bg-white px-2.5 py-1 text-[10px] font-bold tracking-wide text-foreground shadow-sm">
             {firstName}, YOU UNLOCKED
           </span>
-          <div className="rotate-[-2deg] rounded-[3px] bg-black/25 px-4 py-4 pl-8 shadow-md">
+          <div className={`rotate-[-2deg] rounded-[3px] ${theme.ribbon} px-4 py-4 pl-8 shadow-md`}>
             <p className="text-[19px] font-extrabold uppercase leading-tight tracking-wide text-white">{headline}</p>
           </div>
         </div>

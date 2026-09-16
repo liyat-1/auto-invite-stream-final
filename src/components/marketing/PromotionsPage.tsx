@@ -3,8 +3,17 @@ import { Gift, Pencil, Plus, Search, X } from "lucide-react";
 import { MarketingShell } from "./MarketingShell";
 import { PromotionAssignOverlay } from "./PromotionAssignOverlay";
 import { PromoBanner } from "./PromoBanner";
+import { EmojiPicker } from "./EmojiPicker";
 import { Button } from "@/components/ui/button";
-import { CODE_TYPE_LABEL, campaignPromotionId, mutate, promotionValidity, uid, useMarketing } from "@/lib/marketing";
+import {
+  BANNER_THEMES,
+  CODE_TYPE_LABEL,
+  campaignPromotionId,
+  mutate,
+  promotionValidity,
+  uid,
+  useMarketing,
+} from "@/lib/marketing";
 
 export function PromotionsPage() {
   const { campaigns, promotions } = useMarketing();
@@ -21,6 +30,7 @@ export function PromotionsPage() {
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [durationDays, setDurationDays] = useState("");
+  const [bannerStyle, setBannerStyle] = useState<string>(BANNER_THEMES[0].id);
 
   const q = query.trim().toLowerCase();
   const list = promotions.filter(
@@ -44,6 +54,7 @@ export function PromotionsPage() {
         startsAt: startsAt || undefined,
         endsAt: endsAt || undefined,
         durationDays: durationDays ? Number(durationDays) : undefined,
+        bannerStyle,
       }),
     );
     setName("");
@@ -56,6 +67,7 @@ export function PromotionsPage() {
     setStartsAt("");
     setEndsAt("");
     setDurationDays("");
+    setBannerStyle(BANNER_THEMES[0].id);
     setCreating(false);
   };
 
@@ -136,15 +148,37 @@ export function PromotionsPage() {
                   className="rounded-sm border border-input bg-background px-2.5 py-1.5 text-[12.5px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </label>
-              <label className="grid gap-1 sm:col-span-2">
+              <div className="grid gap-1 sm:col-span-2">
                 <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Tagline on the offer banner</span>
-                <input
-                  value={tagline}
-                  onChange={(event) => setTagline(event.target.value)}
-                  placeholder="e.g. Stay longer and save"
-                  className="rounded-sm border border-input bg-background px-2.5 py-1.5 text-[12.5px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                />
-              </label>
+                <div className="flex items-center gap-1.5 rounded-sm border border-input bg-background px-2.5 py-1 focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20">
+                  <input
+                    value={tagline}
+                    onChange={(event) => setTagline(event.target.value)}
+                    placeholder="e.g. Stay longer and save 🌙"
+                    className="min-w-0 flex-1 bg-transparent py-0.5 text-[12.5px] outline-none"
+                  />
+                  <EmojiPicker onPick={(emoji) => setTagline((v) => `${v}${emoji}`)} label="Add emoji to tagline" />
+                </div>
+              </div>
+              <div className="grid gap-1 sm:col-span-2">
+                <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Banner colour</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {BANNER_THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      title={theme.label}
+                      aria-label={theme.label}
+                      aria-pressed={bannerStyle === theme.id}
+                      onClick={() => setBannerStyle(theme.id)}
+                      className={`size-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                        bannerStyle === theme.id ? "border-brand ring-2 ring-brand/25" : "border-border"
+                      }`}
+                      style={{ backgroundColor: theme.swatch }}
+                    />
+                  ))}
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <label className="grid gap-1">
                   <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Valid from</span>
@@ -194,6 +228,7 @@ export function PromotionsPage() {
                   startsAt: startsAt || undefined,
                   endsAt: endsAt || undefined,
                   durationDays: durationDays ? Number(durationDays) : undefined,
+                  bannerStyle,
                 }}
               />
             </div>
