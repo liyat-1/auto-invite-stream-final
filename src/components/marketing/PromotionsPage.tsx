@@ -54,6 +54,7 @@ export function PromotionsPage() {
         startsAt: startsAt || undefined,
         endsAt: endsAt || undefined,
         durationDays: durationDays ? Number(durationDays) : undefined,
+        bannerStyle,
       }),
     );
     setName("");
