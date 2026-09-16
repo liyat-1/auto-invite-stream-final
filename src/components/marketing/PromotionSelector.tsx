@@ -100,7 +100,7 @@ export function PromotionSelector({
         </div>
 
         <DialogFooter className="border-t border-border px-5 py-3">
-          {selectedId && selectedId !== "inherit" && <Button variant="ghost" onClick={() => { onSelect(null); onClose(); }}>Remove promotion</Button>}
+          {selectedId && <Button variant="ghost" className="text-destructive" onClick={() => { onSelect(null); onClose(); }}>Remove promotion</Button>}
           <Button variant="outline" onClick={onClose}>Cancel</Button>
         </DialogFooter>
       </DialogContent>

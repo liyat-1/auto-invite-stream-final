@@ -60,6 +60,18 @@ function TemplateGlyph({ id, swatch }: { id: string; swatch: string }) {
           </div>
         </div>
       )}
+      {id === "split" && (
+        <div className="grid size-full grid-cols-[2fr_3fr] overflow-hidden rounded-[2px] border border-border">
+          <span style={{ backgroundColor: swatch }} />
+          <span className="grid content-center gap-1 px-2"><i className="block h-1 w-full bg-muted-foreground/35" /><i className="block h-1 w-2/3 bg-muted-foreground/20" /></span>
+        </div>
+      )}
+      {id === "editorial" && (
+        <div className="w-full border-l-4 px-2" style={{ borderColor: swatch }}><span className="block text-[15px] font-black leading-none">Aa</span><span className="mt-1 block h-1 w-3/4 bg-muted-foreground/25" /></div>
+      )}
+      {id === "badge" && (
+        <div className="grid size-full place-items-center rounded-[2px] bg-muted"><span className="grid size-8 place-items-center rounded-full text-[9px] font-black text-white" style={{ backgroundColor: swatch }}>%</span></div>
+      )}
     </div>
   );
 }
@@ -285,7 +297,7 @@ export function PromotionEditorOverlay({ promotion, onClose }: { promotion?: Pro
                 Pick a layout and colour, drop in a logo or photo from the media library, and edit every line of wording.
               </p>
 
-              <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 {BANNER_TEMPLATES.map((t) => (
                   <button
                     key={t.id}

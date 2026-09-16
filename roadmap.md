@@ -83,9 +83,9 @@
 
 ## Promotion presentation polish
 
-- [ ] Add direct promotion removal inside campaign content editing
-- [ ] Restyle the edit-content warning with clear warning hierarchy
-- [ ] Add modern promotion banner templates
+- [x] Add direct promotion removal inside campaign content editing
+- [x] Restyle the edit-content warning with clear warning hierarchy
+- [x] Add modern promotion banner templates
 - [ ] Place promotions naturally before email buttons
-- [ ] Replace unclear starter promotion wording
+- [x] Replace unclear starter promotion wording
 - [ ] Verify updated workflows and previews
