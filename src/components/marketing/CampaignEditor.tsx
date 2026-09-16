@@ -5,6 +5,7 @@ import { EmailEditor } from "./EmailEditor";
 import { PromoBanner } from "./PromoBanner";
 import { PromotionSelector } from "./PromotionSelector";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -101,7 +102,12 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
   const segment = (active: boolean, disabled = false) => `rounded px-3 py-1.5 text-[12.5px] font-medium transition-colors ${active ? "bg-card text-card-foreground shadow-card" : disabled ? "cursor-not-allowed text-muted-foreground/45" : "text-muted-foreground hover:text-foreground"}`;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-canvas">
+    <Dialog open onOpenChange={(open) => !open && closeSafely()}>
+      <DialogContent className="flex h-[92vh] max-h-[92vh] w-[96vw] max-w-6xl flex-col gap-0 overflow-hidden border-border bg-canvas p-0 shadow-float [&>button]:hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Edit {draft.name}</DialogTitle>
+          <DialogDescription>Edit campaign text, email, and attached promotion.</DialogDescription>
+        </DialogHeader>
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="min-w-0"><p className="text-[10.5px] font-medium text-muted-foreground">Automated invite</p><h2 className="truncate text-[17px] font-semibold text-card-foreground">{draft.name}</h2><p className="truncate text-[11.5px] text-muted-foreground">{STRATEGY_LABEL[draft.strategy]}</p></div>
@@ -172,6 +178,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
           <AlertDialogFooter><AlertDialogCancel>{confirm === "leave" ? "Stay and save" : "Cancel"}</AlertDialogCancel><AlertDialogAction className="bg-brand text-brand-foreground hover:bg-brand/90" onClick={confirm === "leave" ? onClose : confirm === "save" ? save : revertCurrent}>{confirm === "leave" ? "Leave" : confirm === "save" ? "Save changes" : "Revert"}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

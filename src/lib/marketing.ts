@@ -241,6 +241,9 @@ export const BANNER_TEMPLATES = [
   { id: "split", label: "Split", desc: "Modern image panel paired with crisp offer details." },
   { id: "editorial", label: "Editorial", desc: "Bold magazine typography with refined spacing." },
   { id: "badge", label: "Badge", desc: "A confident central offer badge over rich imagery." },
+  { id: "upgrade", label: "Upgrade card", desc: "Image-led room upgrade with a clear comparison panel." },
+  { id: "schedule", label: "Schedule card", desc: "Arrival or departure offer with a visual time window." },
+  { id: "included", label: "Included perks", desc: "Photo-led package with concise included benefits." },
 ] as const;
 
 export type BannerTemplateId = (typeof BANNER_TEMPLATES)[number]["id"];
