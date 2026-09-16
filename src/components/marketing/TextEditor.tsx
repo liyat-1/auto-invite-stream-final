@@ -2,15 +2,17 @@ import { useRef } from "react";
 import { TagTextArea } from "@/components/campaign/TagTextArea";
 import { SmsPreview } from "@/components/editor/SmsPreview";
 import { MediaStrip } from "./MediaStrip";
-import { MERGE_TAGS, useMarketing, type TextContent } from "@/lib/marketing";
+import { MERGE_TAGS, useMarketing, type Promotion, type TextContent } from "@/lib/marketing";
 
 /** Text (SMS) channel editor with merge tags, media attachments and live preview. */
 export function TextEditor({
   value,
   onChange,
+  promotion,
 }: {
   value: TextContent;
   onChange: (v: TextContent) => void;
+  promotion?: Promotion | null;
 }) {
   const { media } = useMarketing();
   const ref = useRef<HTMLDivElement | null>(null);
@@ -66,6 +68,7 @@ export function TextEditor({
           imageUrl={firstImage?.url ?? null}
           sender="Holiday Inn"
           scale={0.62}
+          promotion={promotion}
         />
       </div>
     </div>

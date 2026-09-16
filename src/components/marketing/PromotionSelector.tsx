@@ -8,14 +8,18 @@ export function PromotionSelector({
   open,
   campaignName,
   selectedId,
+  inheritedId,
+  allowInherit = false,
   onClose,
   onSelect,
 }: {
   open: boolean;
   campaignName: string;
   selectedId: string | null;
+  inheritedId?: string | null;
+  allowInherit?: boolean;
   onClose: () => void;
-  onSelect: (id: string | null) => void;
+  onSelect: (id: string | null | "inherit") => void;
 }) {
   const { promotions } = useMarketing();
   const [query, setQuery] = useState("");
@@ -65,6 +69,24 @@ export function PromotionSelector({
           </div>
 
           <div className="mt-4 space-y-2">
+            {allowInherit && (
+              <button
+                onClick={() => { onSelect("inherit"); onClose(); }}
+                className={`flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors ${
+                  selectedId === "inherit" ? "border-brand bg-brand-soft" : "border-border bg-background hover:border-brand/50"
+                }`}
+              >
+                <span className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-md ${selectedId === "inherit" ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground"}`}>
+                  {selectedId === "inherit" ? <Check size={15} /> : <Gift size={15} />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13px] font-semibold text-card-foreground">Use global promotion</span>
+                  <span className="mt-0.5 block text-[11.5px] text-muted-foreground">
+                    {promotions.find((promotion) => promotion.id === inheritedId)?.name ?? "No global promotion is set"}
+                  </span>
+                </span>
+              </button>
+            )}
             {results.map((promotion) => {
               const active = promotion.id === selectedId;
               return (
@@ -117,7 +139,7 @@ export function PromotionSelector({
         </div>
 
         <DialogFooter className="border-t border-border px-5 py-3">
-          {selectedId && <Button variant="ghost" onClick={() => { onSelect(null); onClose(); }}>Remove promotion</Button>}
+          {selectedId && selectedId !== "inherit" && <Button variant="ghost" onClick={() => { onSelect(null); onClose(); }}>Remove promotion</Button>}
           <Button variant="outline" onClick={onClose}>Cancel</Button>
         </DialogFooter>
       </DialogContent>
