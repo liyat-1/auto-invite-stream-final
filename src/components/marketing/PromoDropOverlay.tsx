@@ -15,8 +15,8 @@ import {
 } from "@/lib/marketing";
 
 const AUDIENCE_KEYS: AudienceKey[] = ["direct", "ota"];
-const AREA_COUNT = 4;
-const STORAGE_KEY = "directful.promo-areas";
+const AREA_COUNT = 3;
+const STORAGE_KEY = "directful.promo-areas-v3";
 
 type Areas = (string | null)[];
 
