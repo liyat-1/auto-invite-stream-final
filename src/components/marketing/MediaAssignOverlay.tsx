@@ -3,7 +3,9 @@ import { Check, ChevronDown, FileStack, GripVertical, Info, Plus, Search, Trash2
 import { MediaThumb } from "./MediaPicker";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BulkDragChips } from "./BulkDragChips";
 import {
+  CAMPAIGN_BULK_DRAG_TYPE,
   CAMPAIGN_DRAG_TYPE,
   attachMediaToCampaign,
   audienceMediaIds,
@@ -12,6 +14,7 @@ import {
   uid,
   useMarketing,
   type AudienceKey,
+  type BulkScope,
   type MarketingCampaign,
   type MediaItem,
   type MediaType,
