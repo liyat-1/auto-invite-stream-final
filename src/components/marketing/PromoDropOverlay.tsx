@@ -284,10 +284,15 @@ export function PromoDropOverlay({
             onDragLeave={() => setOverArea((current) => (current === -1 ? null : current))}
             onDrop={(event) => {
               event.preventDefault();
-              const campaignId = draggedId(event);
-              if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
+              const scope = draggedScope(event);
+              if (scope) clearCollection(scope);
+              else {
+                const campaignId = draggedId(event);
+                if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
+              }
               setOverArea(null);
               setDragging(null);
+              setBulk(null);
             }}
             className={`flex w-[250px] shrink-0 flex-col rounded-xl border p-4 transition-colors sm:w-[270px] ${
               overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"
