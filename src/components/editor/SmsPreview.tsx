@@ -47,14 +47,14 @@ export function SmsPreview({
         </div>
       }
       footer={
-        <div className="relative px-3 pb-1 pt-2">
-          {/* frosted glass tray */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[-28px] bg-gradient-to-t from-white/85 via-white/60 to-transparent backdrop-blur-xl" />
-          <div className="relative flex items-center gap-2.5">
-            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/55 shadow-[0_6px_18px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-black/5 backdrop-blur-2xl">
+        // Floating frosted composer: detached from the screen edge, sitting on
+        // its own glass panel above the home indicator.
+        <div className="relative px-4 pb-3 pt-3">
+          <div className="flex items-center gap-2.5 rounded-[2rem] bg-white/45 p-2 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.30),0_2px_10px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-white/60 backdrop-blur-2xl">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/70 shadow-[0_2px_8px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-black/5 backdrop-blur-xl">
               <Plus size={21} className="text-zinc-700" strokeWidth={2.5} />
             </span>
-            <div className="flex h-11 flex-1 items-center justify-between rounded-full bg-white/55 px-5 shadow-[0_6px_18px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-black/10 backdrop-blur-2xl">
+            <div className="flex h-11 flex-1 items-center justify-between rounded-full bg-white/70 px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-black/10 backdrop-blur-xl">
               <span className="text-[16px] text-zinc-500">iMessage</span>
               <Mic size={18} className="text-zinc-500" />
             </div>

@@ -3,7 +3,9 @@ import { Check, ChevronDown, FileStack, GripVertical, Info, Plus, Search, Trash2
 import { MediaThumb } from "./MediaPicker";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BulkDragChips } from "./BulkDragChips";
 import {
+  CAMPAIGN_BULK_DRAG_TYPE,
   CAMPAIGN_DRAG_TYPE,
   attachMediaToCampaign,
   audienceMediaIds,
@@ -12,6 +14,7 @@ import {
   uid,
   useMarketing,
   type AudienceKey,
+  type BulkScope,
   type MarketingCampaign,
   type MediaItem,
   type MediaType,
@@ -135,6 +138,7 @@ export function MediaAssignOverlay({
   const [over, setOver] = useState<number | null>(null);
   const [picker, setPicker] = useState<number | null>(null);
   const [details, setDetails] = useState<number | null>(null);
+  const [bulk, setBulk] = useState<BulkScope | null>(null);
 
   useEffect(() => {
     try {
@@ -165,13 +169,40 @@ export function MediaAssignOverlay({
   };
 
   const allow = (event: React.DragEvent) => {
-    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    const types = event.dataTransfer.types;
+    if (!dragging && !bulk && !types.includes(CAMPAIGN_DRAG_TYPE) && !types.includes(CAMPAIGN_BULK_DRAG_TYPE)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
 
-  const draggedId = (event: React.DragEvent) =>
-    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
+  const draggedScope = (event: React.DragEvent): BulkScope | null =>
+    (event.dataTransfer.getData(CAMPAIGN_BULK_DRAG_TYPE) as BulkScope) || bulk;
+
+  const draggedId = (event: React.DragEvent) => {
+    if (draggedScope(event)) return null;
+    const plain = event.dataTransfer.getData("text/plain");
+    return event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || (plain.startsWith("bulk:") ? "" : plain) || dragging;
+  };
+
+  const audiencesOf = (scope: BulkScope): AudienceKey[] => (scope === "both" ? AUDIENCE_KEYS : [scope]);
+
+  /** Attach one file to every free campaign of a collection at once. */
+  const dropCollection = (scope: BulkScope, mediaId: string) => {
+    const audiences = audiencesOf(scope);
+    campaigns
+      .filter((c) => audiences.every((a) => !audienceMediaIds(c, a, channel).includes(mediaId)))
+      .forEach((c) => attachMediaToCampaign(c.id, mediaId, audiences, channel));
+  };
+
+  /** Detach every file of this channel for a whole collection. */
+  const clearCollection = (scope: BulkScope) => {
+    const audiences = audiencesOf(scope);
+    campaigns.forEach((c) =>
+      audiences.forEach((a) =>
+        audienceMediaIds(c, a, channel).forEach((id) => detachMediaFromCampaign(c.id, id, [a], channel)),
+      ),
+    );
+  };
 
   /** Remove every file of this channel from a campaign. */
   const clearCampaign = (campaignId: string) => {
@@ -257,10 +288,15 @@ export function MediaAssignOverlay({
             onDragLeave={() => setOver((c) => (c === -1 ? null : c))}
             onDrop={(event) => {
               event.preventDefault();
-              const id = draggedId(event);
-              if (id) clearCampaign(id);
+              const scope = draggedScope(event);
+              if (scope) clearCollection(scope);
+              else {
+                const id = draggedId(event);
+                if (id) clearCampaign(id);
+              }
               setOver(null);
               setDragging(null);
+              setBulk(null);
             }}
             className={`flex w-[250px] shrink-0 flex-col rounded-xl border p-4 transition-colors sm:w-[270px] ${
               over === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"
@@ -277,6 +313,11 @@ export function MediaAssignOverlay({
                 </p>
               </div>
             </div>
+            <BulkDragChips
+              count={unattached.length}
+              onDragStart={(scope) => setBulk(scope)}
+              onDragEnd={() => { setBulk(null); setOver(null); }}
+            />
             <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
               {unattached.map((campaign) => (
                 <article
@@ -314,9 +355,15 @@ export function MediaAssignOverlay({
                   onDragLeave={() => setOver((c) => (c === index ? null : c))}
                   onDrop={(event) => {
                     event.preventDefault();
-                    const id = draggedId(event);
+                    const scope = draggedScope(event);
                     setOver(null);
                     setDragging(null);
+                    setBulk(null);
+                    if (scope) {
+                      if (item) dropCollection(scope, item.id);
+                      return;
+                    }
+                    const id = draggedId(event);
                     if (id && item) attachMediaToCampaign(id, item.id, AUDIENCE_KEYS, channel);
                   }}
                   className={`flex w-[290px] shrink-0 flex-col rounded-xl border p-4 transition-colors ${

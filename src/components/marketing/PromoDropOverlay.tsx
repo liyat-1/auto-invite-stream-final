@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BulkDragChips } from "./BulkDragChips";
 import {
+  CAMPAIGN_BULK_DRAG_TYPE,
   CAMPAIGN_DRAG_TYPE,
   CODE_TYPE_LABEL,
   promotionDuration,
@@ -22,6 +24,7 @@ import {
   setVariantPromotion,
   useMarketing,
   type AudienceKey,
+  type BulkScope,
   type MarketingCampaign,
   type Promotion,
 } from "@/lib/marketing";
@@ -138,6 +141,7 @@ export function PromoDropOverlay({
   const [picker, setPicker] = useState<number | null>(null);
   const [details, setDetails] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [bulk, setBulk] = useState<BulkScope | null>(null);
 
   useEffect(() => {
     try {
@@ -198,15 +202,44 @@ export function PromoDropOverlay({
     setNote(null);
   };
 
+  const audiencesOf = (scope: BulkScope): AudienceKey[] =>
+    scope === "both" ? AUDIENCE_KEYS : [scope];
+
+  /** Move every free campaign of a collection onto one offer at once. */
+  const dropCollection = (scope: BulkScope, promotionId: string) => {
+    const audiences = audiencesOf(scope);
+    const moved = campaigns.filter((c) => audiences.every((a) => c.variants[a].promotionMode !== "custom"));
+    moved.forEach((c) => audiences.forEach((a) => setVariantPromotion(c.id, a, promotionId)));
+    setNote(
+      moved.length
+        ? `${moved.length} campaign${moved.length === 1 ? "" : "s"} moved onto this offer.`
+        : "Every campaign in that collection already carries an offer.",
+    );
+  };
+
+  /** Clear a whole collection back to No promotion. */
+  const clearCollection = (scope: BulkScope) => {
+    const audiences = audiencesOf(scope);
+    campaigns.forEach((c) => audiences.forEach((a) => setVariantPromotion(c.id, a, null)));
+  };
+
   const allow = (event: React.DragEvent) => {
-    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    const types = event.dataTransfer.types;
+    if (!dragging && !bulk && !types.includes(CAMPAIGN_DRAG_TYPE) && !types.includes(CAMPAIGN_BULK_DRAG_TYPE)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
 
+  /** Collection scope from the drag payload, when a collection is dragged. */
+  const draggedScope = (event: React.DragEvent): BulkScope | null =>
+    (event.dataTransfer.getData(CAMPAIGN_BULK_DRAG_TYPE) as BulkScope) || bulk;
+
   /** Campaign id from the drag payload, falling back to the tracked drag. */
-  const draggedId = (event: React.DragEvent) =>
-    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
+  const draggedId = (event: React.DragEvent) => {
+    if (draggedScope(event)) return null;
+    const plain = event.dataTransfer.getData("text/plain");
+    return event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || (plain.startsWith("bulk:") ? "" : plain) || dragging;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
@@ -251,10 +284,15 @@ export function PromoDropOverlay({
             onDragLeave={() => setOverArea((current) => (current === -1 ? null : current))}
             onDrop={(event) => {
               event.preventDefault();
-              const campaignId = draggedId(event);
-              if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
+              const scope = draggedScope(event);
+              if (scope) clearCollection(scope);
+              else {
+                const campaignId = draggedId(event);
+                if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
+              }
               setOverArea(null);
               setDragging(null);
+              setBulk(null);
             }}
             className={`flex w-[250px] shrink-0 flex-col rounded-xl border p-4 transition-colors sm:w-[270px] ${
               overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"
@@ -267,6 +305,11 @@ export function PromoDropOverlay({
                 <p className="mt-0.5 text-[10.5px] text-muted-foreground">{unassigned.length} campaigns without an offer</p>
               </div>
             </div>
+            <BulkDragChips
+              count={unassigned.length}
+              onDragStart={(scope) => setBulk(scope)}
+              onDragEnd={() => { setBulk(null); setOverArea(null); }}
+            />
             <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
               {unassigned.map((campaign) => (
                 <article
@@ -307,9 +350,15 @@ export function PromoDropOverlay({
                   onDragLeave={() => setOverArea((c) => (c === index ? null : c))}
                   onDrop={(event) => {
                     event.preventDefault();
-                    const id = draggedId(event);
+                    const scope = draggedScope(event);
                     setOverArea(null);
                     setDragging(null);
+                    setBulk(null);
+                    if (scope) {
+                      if (promotion) dropCollection(scope, promotion.id);
+                      return;
+                    }
+                    const id = draggedId(event);
                     if (id && promotion) dropCampaign(id, promotion.id);
                   }}
                   className={`flex w-[290px] shrink-0 flex-col rounded-xl border p-4 transition-colors ${
