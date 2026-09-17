@@ -126,3 +126,5 @@
 - [x] Add emoji insertion to Text and Email content fields
 - [x] Match the phone preview more closely to the supplied iPhone 17 Pro Max references
 - [x] Verify all updated workflows at desktop and mobile widths
+- [x] Mouse-drag verified across offer columns (No promotion → offer 1 → offer 2) with no errors
+- [x] Phone-width pass on promo manager and content editor — previews and offer banner render correctly
