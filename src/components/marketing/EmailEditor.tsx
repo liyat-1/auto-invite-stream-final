@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Gift, LayoutTemplate, Rows3, Smile, Trash2 } from "lucide-react";
+import { ChevronDown, Gift, LayoutTemplate, Rows3, Trash2 } from "lucide-react";
 import { TemplateLibrary } from "./TemplateLibrary";
 import { EmojiPicker } from "./EmojiPicker";
 import { LayoutLibrary, LayoutThumb } from "./LayoutLibrary";
