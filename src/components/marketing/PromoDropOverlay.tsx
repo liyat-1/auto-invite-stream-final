@@ -305,6 +305,11 @@ export function PromoDropOverlay({
                 <p className="mt-0.5 text-[10.5px] text-muted-foreground">{unassigned.length} campaigns without an offer</p>
               </div>
             </div>
+            <BulkDragChips
+              count={unassigned.length}
+              onDragStart={(scope) => setBulk(scope)}
+              onDragEnd={() => { setBulk(null); setOverArea(null); }}
+            />
             <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
               {unassigned.map((campaign) => (
                 <article
