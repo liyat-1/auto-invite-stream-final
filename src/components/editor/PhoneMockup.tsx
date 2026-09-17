@@ -10,6 +10,7 @@ export function PhoneMockup({
   statusBar = true,
   time = "9:41",
   chrome,
+  footer,
   contentClassName = "bg-white",
 }: {
   children: React.ReactNode;
@@ -17,6 +18,8 @@ export function PhoneMockup({
   statusBar?: boolean;
   time?: string;
   chrome?: React.ReactNode;
+  /** Pinned below the scrolling content, above the home indicator. */
+  footer?: React.ReactNode;
   contentClassName?: string;
 }) {
   // iPhone 17 Pro Max logical screen.
