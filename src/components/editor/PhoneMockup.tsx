@@ -87,10 +87,14 @@ export function PhoneMockup({
 
               {chrome}
 
-              <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
+              <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {children}
+              </div>
+
+              {footer && <div className="relative z-20 shrink-0">{footer}</div>}
 
               {/* Home indicator */}
-              <div className="relative z-20 flex h-6 shrink-0 items-center justify-center">
+              <div className="relative z-20 flex h-7 shrink-0 items-center justify-center">
                 <span className="h-[5px] w-[140px] rounded-full bg-zinc-900/85" />
               </div>
             </div>
