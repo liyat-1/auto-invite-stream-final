@@ -153,6 +153,7 @@ export function PromoDropOverlay({
 
   const beginDrag = (event: React.DragEvent, campaignId: string) => {
     event.dataTransfer.setData(CAMPAIGN_DRAG_TYPE, campaignId);
+    event.dataTransfer.setData("text/plain", campaignId);
     event.dataTransfer.effectAllowed = "move";
     setDragging(campaignId);
   };
@@ -189,10 +190,14 @@ export function PromoDropOverlay({
   };
 
   const allow = (event: React.DragEvent) => {
-    if (!event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
     event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
+    event.dataTransfer.dropEffect = "move";
   };
+
+  /** Campaign id from the drag payload, falling back to the tracked drag. */
+  const draggedId = (event: React.DragEvent) =>
+    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
@@ -236,7 +241,7 @@ export function PromoDropOverlay({
             onDragLeave={() => setOverArea((current) => (current === -1 ? null : current))}
             onDrop={(event) => {
               event.preventDefault();
-              const campaignId = event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE);
+              const campaignId = draggedId(event);
               if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
               setOverArea(null);
               setDragging(null);
@@ -270,7 +275,7 @@ export function PromoDropOverlay({
                 onDragLeave={() => setOverArea((c) => (c === index ? null : c))}
                 onDrop={(event) => {
                   event.preventDefault();
-                  const id = event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE);
+                  const id = draggedId(event);
                   setOverArea(null);
                   setDragging(null);
                   if (id && promotion) dropCampaign(id, promotion.id);
