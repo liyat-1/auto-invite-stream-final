@@ -179,21 +179,12 @@ export function PromoDropOverlay({
     setVariantPromotion(campaignId, audience, value ? promotionId : null);
   };
 
+  /** Dropping a campaign onto an offer moves it there for both guest segments. */
   const dropCampaign = (campaignId: string, promotionId: string) => {
     const campaign = campaigns.find((c) => c.id === campaignId);
     if (!campaign) return;
-    const conflict = conflictOf(campaign, promotionId);
-    AUDIENCE_KEYS.forEach((audience) => {
-      if (!conflict[audience]) setVariantPromotion(campaignId, audience, promotionId);
-    });
-    const blocked = AUDIENCE_KEYS.filter((a) => conflict[a]);
-    if (blocked.length === 2) {
-      setNote(`${campaign.name} already receives a different offer for both guest segments.`);
-    } else if (blocked.length === 1) {
-      setNote(
-        `${campaign.name} attached for ${blocked[0] === "direct" ? "OTA" : "Direct"} guests. Its ${blocked[0] === "direct" ? "Direct" : "OTA"} guests keep their existing offer — untick or replace it below.`,
-      );
-    }
+    AUDIENCE_KEYS.forEach((audience) => setVariantPromotion(campaignId, audience, promotionId));
+    setNote(null);
   };
 
   const allow = (event: React.DragEvent) => {
