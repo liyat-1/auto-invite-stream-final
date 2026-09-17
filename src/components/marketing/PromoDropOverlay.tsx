@@ -30,7 +30,7 @@ function loadAreas(promotions: Promotion[]): Areas {
   } catch {
     /* ignore */
   }
-  return [0, 1, 2, 3].map((i) => promotions[i]?.id ?? null);
+  return Array.from({ length: AREA_COUNT }, (_, i) => promotions[i]?.id ?? null);
 }
 
 /** One campaign chip under an offer: which guest segments receive it. */
