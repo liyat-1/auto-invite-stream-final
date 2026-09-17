@@ -350,9 +350,15 @@ export function PromoDropOverlay({
                   onDragLeave={() => setOverArea((c) => (c === index ? null : c))}
                   onDrop={(event) => {
                     event.preventDefault();
-                    const id = draggedId(event);
+                    const scope = draggedScope(event);
                     setOverArea(null);
                     setDragging(null);
+                    setBulk(null);
+                    if (scope) {
+                      if (promotion) dropCollection(scope, promotion.id);
+                      return;
+                    }
+                    const id = draggedId(event);
                     if (id && promotion) dropCampaign(id, promotion.id);
                   }}
                   className={`flex w-[290px] shrink-0 flex-col rounded-xl border p-4 transition-colors ${
