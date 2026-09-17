@@ -30,9 +30,6 @@ function loadAreas(promotions: Promotion[]): Areas {
   } catch {
     /* ignore */
   }
-  // Seed the areas with the most-used offers so the surface is never empty.
-  const usage = (id: string) => 0;
-  void usage;
   return [0, 1, 2, 3].map((i) => promotions[i]?.id ?? null);
 }
 
