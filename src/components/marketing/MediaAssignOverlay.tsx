@@ -345,9 +345,15 @@ export function MediaAssignOverlay({
                   onDragLeave={() => setOver((c) => (c === index ? null : c))}
                   onDrop={(event) => {
                     event.preventDefault();
-                    const id = draggedId(event);
+                    const scope = draggedScope(event);
                     setOver(null);
                     setDragging(null);
+                    setBulk(null);
+                    if (scope) {
+                      if (item) dropCollection(scope, item.id);
+                      return;
+                    }
+                    const id = draggedId(event);
                     if (id && item) attachMediaToCampaign(id, item.id, AUDIENCE_KEYS, channel);
                   }}
                   className={`flex w-[290px] shrink-0 flex-col rounded-xl border p-4 transition-colors ${
