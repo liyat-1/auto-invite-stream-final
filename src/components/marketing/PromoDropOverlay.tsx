@@ -201,15 +201,44 @@ export function PromoDropOverlay({
     setNote(null);
   };
 
+  const audiencesOf = (scope: BulkScope): AudienceKey[] =>
+    scope === "both" ? AUDIENCE_KEYS : [scope];
+
+  /** Move every free campaign of a collection onto one offer at once. */
+  const dropCollection = (scope: BulkScope, promotionId: string) => {
+    const audiences = audiencesOf(scope);
+    const moved = campaigns.filter((c) => audiences.every((a) => c.variants[a].promotionMode !== "custom"));
+    moved.forEach((c) => audiences.forEach((a) => setVariantPromotion(c.id, a, promotionId)));
+    setNote(
+      moved.length
+        ? `${moved.length} campaign${moved.length === 1 ? "" : "s"} moved onto this offer.`
+        : "Every campaign in that collection already carries an offer.",
+    );
+  };
+
+  /** Clear a whole collection back to No promotion. */
+  const clearCollection = (scope: BulkScope) => {
+    const audiences = audiencesOf(scope);
+    campaigns.forEach((c) => audiences.forEach((a) => setVariantPromotion(c.id, a, null)));
+  };
+
   const allow = (event: React.DragEvent) => {
-    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    const types = event.dataTransfer.types;
+    if (!dragging && !bulk && !types.includes(CAMPAIGN_DRAG_TYPE) && !types.includes(CAMPAIGN_BULK_DRAG_TYPE)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
 
+  /** Collection scope from the drag payload, when a collection is dragged. */
+  const draggedScope = (event: React.DragEvent): BulkScope | null =>
+    (event.dataTransfer.getData(CAMPAIGN_BULK_DRAG_TYPE) as BulkScope) || bulk;
+
   /** Campaign id from the drag payload, falling back to the tracked drag. */
-  const draggedId = (event: React.DragEvent) =>
-    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
+  const draggedId = (event: React.DragEvent) => {
+    if (draggedScope(event)) return null;
+    const plain = event.dataTransfer.getData("text/plain");
+    return event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || (plain.startsWith("bulk:") ? "" : plain) || dragging;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
