@@ -863,22 +863,37 @@ export function campaignMediaIds(c: MarketingCampaign): string[] {
   return [...new Set([...(c.variants.direct.text.mediaIds ?? []), ...(c.variants.ota.text.mediaIds ?? [])])];
 }
 
-export function attachMediaToCampaign(campaignId: string, mediaId: string) {
+/** Media attached to one guest segment of a campaign. */
+export function audienceMediaIds(c: MarketingCampaign, audience: AudienceKey): string[] {
+  return c.variants[audience].text.mediaIds ?? [];
+}
+
+const BOTH_AUDIENCES: AudienceKey[] = ["direct", "ota"];
+
+export function attachMediaToCampaign(
+  campaignId: string,
+  mediaId: string,
+  audiences: AudienceKey[] = BOTH_AUDIENCES,
+) {
   mutate((draft) => {
     const c = draft.campaigns.find((x) => x.id === campaignId);
     if (!c) return;
-    (["direct", "ota"] as AudienceKey[]).forEach((key) => {
+    audiences.forEach((key) => {
       const ids = c.variants[key].text.mediaIds ?? [];
       if (!ids.includes(mediaId)) c.variants[key].text.mediaIds = [...ids, mediaId];
     });
   });
 }
 
-export function detachMediaFromCampaign(campaignId: string, mediaId: string) {
+export function detachMediaFromCampaign(
+  campaignId: string,
+  mediaId: string,
+  audiences: AudienceKey[] = BOTH_AUDIENCES,
+) {
   mutate((draft) => {
     const c = draft.campaigns.find((x) => x.id === campaignId);
     if (!c) return;
-    (["direct", "ota"] as AudienceKey[]).forEach((key) => {
+    audiences.forEach((key) => {
       c.variants[key].text.mediaIds = (c.variants[key].text.mediaIds ?? []).filter((id) => id !== mediaId);
     });
   });
