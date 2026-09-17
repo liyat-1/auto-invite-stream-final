@@ -143,7 +143,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
     setConfirm(null);
   };
 
-  const segment = (active: boolean, disabled = false) => `rounded px-3 py-1.5 text-[12.5px] font-medium transition-colors ${active ? "bg-card text-card-foreground shadow-card" : disabled ? "cursor-not-allowed text-muted-foreground/45" : "text-muted-foreground hover:text-foreground"}`;
+  const channelTab = (active: boolean, disabled = false) => `rounded-md px-4 py-1.5 text-[12.5px] font-semibold transition-colors ${active ? "bg-card text-card-foreground shadow-card" : disabled ? "cursor-not-allowed text-muted-foreground/45" : "text-muted-foreground hover:text-foreground"}`;
 
   const previewMedia = (variant.text.mediaIds ?? [])
     .map((mid) => marketing.media.find((m) => m.id === mid))
@@ -172,8 +172,21 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          {/* Audience sections */}
-          <div className="min-w-0 space-y-3">
+          <div className="min-w-0">
+            {/* Channel tabs — Text and Email each keep their own Direct / OTA sections */}
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <div className="flex gap-1 rounded-md bg-muted p-1">
+                <button onClick={() => setChannel("text")} className={channelTab(activeChannel === "text")}>Text</button>
+                <button onClick={() => supportsEmail && setChannel("email")} disabled={!supportsEmail} className={channelTab(activeChannel === "email", !supportsEmail)}>Email</button>
+              </div>
+              {!supportsEmail && (
+                <span className="text-[11px] text-muted-foreground">
+                  This strategy sends text only — email is not part of the plan.
+                </span>
+              )}
+            </div>
+            {/* Audience sections */}
+            <div className="min-w-0 space-y-3">
             {(["direct", "ota"] as AudienceKey[]).map((key) => {
               const active = audience === key;
               const v = draft.variants[key];
@@ -208,10 +221,6 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                   {active && (
                     <div className="border-t border-border px-4 py-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex gap-1 rounded-md bg-muted p-1">
-                          <button onClick={() => setChannel("text")} className={segment(activeChannel === "text")}>Text</button>
-                          <button onClick={() => supportsEmail && setChannel("email")} disabled={!supportsEmail} className={segment(activeChannel === "email", !supportsEmail)}>Email</button>
-                        </div>
                         <div className="ml-auto flex flex-wrap items-center gap-1.5">
                           <SectionAction icon={History} label="History" active={panel === "history"} onClick={() => setPanel((p) => (p === "history" ? null : "history"))} />
                           <SectionAction icon={HelpCircle} label="Help" active={panel === "help"} onClick={() => setPanel((p) => (p === "help" ? null : "help"))} />
@@ -242,7 +251,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                                 <>
                                   <li>· Keep texts short — one clear ask works best, and every 160 characters costs another segment.</li>
                                   <li>· Tap a merge tag above the box to insert it; it fills in per guest when the message is sent.</li>
-                                  <li>· Attach images or documents under Advanced settings. Images travel as MMS, documents as a link.</li>
+                                  <li>· Attach images or documents under Media and promotion. Images travel as MMS, documents as a link.</li>
                                 </>
                               ) : (
                                 <>
@@ -298,6 +307,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                 </section>
               );
             })}
+          </div>
           </div>
 
           {/* Persistent live preview for the active audience */}

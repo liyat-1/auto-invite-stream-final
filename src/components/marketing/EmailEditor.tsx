@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Gift, LayoutTemplate, Rows3, Trash2 } from "lucide-react";
 import { TemplateLibrary } from "./TemplateLibrary";
+import { EmojiPicker } from "./EmojiPicker";
 import { LayoutLibrary, LayoutThumb } from "./LayoutLibrary";
 import { PromoBanner } from "./PromoBanner";
 import {
@@ -20,21 +21,26 @@ function Field({
   value,
   onChange,
   placeholder,
+  emoji = false,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
+  emoji?: boolean;
 }) {
   return (
     <label className="block">
       <span className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 text-[13.5px] text-foreground outline-none transition-shadow focus:border-brand focus:ring-2 focus:ring-brand/20"
-      />
+      <div className="mt-1.5 flex items-center gap-1.5 rounded-md border border-input bg-background pr-1.5 transition-shadow focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-[13.5px] text-foreground outline-none"
+        />
+        {emoji && <EmojiPicker onPick={(e) => onChange(`${value}${e}`)} label={`Add emoji to ${label.toLowerCase()}`} />}
+      </div>
     </label>
   );
 }
@@ -169,12 +175,17 @@ export function EmailEditor({
 
   return (
     <div className="min-w-0 space-y-4">
-      <Field label="Subject" value={value.subject} onChange={(v) => set("subject", v)} />
-      <Field label="Preheader" value={value.preheader} onChange={(v) => set("preheader", v)} />
-      <Field label="Heading" value={value.heading} onChange={(v) => set("heading", v)} />
+      <Field label="Subject" value={value.subject} onChange={(v) => set("subject", v)} emoji />
+      <Field label="Preheader" value={value.preheader} onChange={(v) => set("preheader", v)} emoji />
+      <Field label="Heading" value={value.heading} onChange={(v) => set("heading", v)} emoji />
 
       <label className="block">
-        <span className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">Body</span>
+        <span className="flex items-center gap-2 text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Body
+          <span className="font-normal normal-case">
+            <EmojiPicker onPick={(e) => set("body", `${value.body}${e}`)} label="Add emoji to body" />
+          </span>
+        </span>
         <textarea
           value={value.body}
           onChange={(e) => set("body", e.target.value)}
@@ -230,8 +241,7 @@ export function EmailEditor({
         >
           <span className="flex items-center gap-1.5">
             <Gift size={13} className="text-muted-foreground" />
-            Advanced settings
-            <span className="font-normal text-muted-foreground">· promotion</span>
+            Promotion settings
           </span>
           <ChevronDown size={14} className={`text-muted-foreground transition-transform ${advanced ? "rotate-180" : ""}`} />
         </button>

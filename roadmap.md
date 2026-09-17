@@ -117,12 +117,12 @@
 
 ## Promotion, media, and editor follow-up
 
-- [ ] Add a No promotion assignment column and move unassigned campaigns there
-- [ ] Replace the separate campaign row with drag-and-drop between assignment columns
-- [ ] Add assigned-media thumbnails and global bulk removal
-- [ ] Separate media assignment into Text and Email tabs with Direct and OTA targets
-- [ ] Move Text and Email to top-level editor tabs with Direct and OTA sections inside
-- [ ] Rename advanced controls to channel-specific professional wording
-- [ ] Add emoji insertion to Text and Email content fields
-- [ ] Match the phone preview more closely to the supplied iPhone 17 Pro Max references
-- [ ] Verify all updated workflows at desktop and mobile widths
+- [x] Add a No promotion assignment column and move unassigned campaigns there
+- [x] Replace the separate campaign row with drag-and-drop between assignment columns
+- [x] Add assigned-media thumbnails and global bulk removal
+- [x] Separate media assignment into Text and Email tabs with Direct and OTA targets
+- [x] Move Text and Email to top-level editor tabs with Direct and OTA sections inside
+- [x] Rename advanced controls to channel-specific professional wording
+- [x] Add emoji insertion to Text and Email content fields
+- [x] Match the phone preview more closely to the supplied iPhone 17 Pro Max references
+- [x] Verify all updated workflows at desktop and mobile widths

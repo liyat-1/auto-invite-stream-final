@@ -6,6 +6,7 @@ import {
   MEDIA_DRAG_TYPE,
   attachMediaToCampaign,
   audienceMediaIds,
+  commonMediaIds,
   detachMediaFromCampaign,
   mutate,
   uid,
@@ -13,6 +14,7 @@ import {
   type AudienceKey,
   type MarketingCampaign,
   type MediaType,
+  type MessageChannel,
 } from "@/lib/marketing";
 
 function typeOf(file: File): MediaType {
@@ -26,11 +28,45 @@ const AUDIENCES: { key: AudienceKey; label: string; hint: string }[] = [
   { key: "ota", label: "OTA guests", hint: "Only guests from booking sites" },
 ];
 
-/** Audience chip list for one campaign card. */
+/** Small thumbnail chip for one attached file. */
+function MediaChip({
+  mediaId,
+  media,
+  onRemove,
+  removeLabel,
+}: {
+  mediaId: string;
+  media: ReturnType<typeof useMarketing>["media"];
+  onRemove: () => void;
+  removeLabel: string;
+}) {
+  const item = media.find((m) => m.id === mediaId);
+  if (!item) return null;
+  return (
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-sm border border-border bg-card py-0.5 pl-0.5 pr-1.5 text-[10px] text-muted-foreground">
+      <span className="size-7 shrink-0 overflow-hidden rounded-[2px] border border-border bg-muted">
+        <MediaThumb item={item} />
+      </span>
+      <span className="max-w-24 truncate">{item.name}</span>
+      <button
+        type="button"
+        aria-label={removeLabel}
+        title={removeLabel}
+        onClick={onRemove}
+        className="shrink-0 hover:text-destructive"
+      >
+        <X size={10} />
+      </button>
+    </span>
+  );
+}
+
+/** One campaign's segment drop row with thumbnails for the active channel. */
 function AudienceRow({
   campaign,
   audience,
   label,
+  channel,
   media,
   dragging,
   onDrop,
@@ -39,13 +75,14 @@ function AudienceRow({
   campaign: MarketingCampaign;
   audience: AudienceKey;
   label: string;
+  channel: MessageChannel;
   media: ReturnType<typeof useMarketing>["media"];
   dragging: string | null;
   onDrop: (campaignId: string, audience: AudienceKey) => void;
   onRemove: (campaignId: string, audience: AudienceKey, mediaId: string) => void;
 }) {
   const [over, setOver] = useState(false);
-  const ids = audienceMediaIds(campaign, audience);
+  const ids = audienceMediaIds(campaign, audience, channel);
   return (
     <div
       onDragOver={(event) => {
@@ -72,26 +109,15 @@ function AudienceRow({
         <p className="mt-0.5 text-[10.5px] text-muted-foreground">Drop a file here</p>
       ) : (
         <div className="mt-1 flex flex-wrap gap-1">
-          {ids.map((id) => {
-            const item = media.find((m) => m.id === id);
-            if (!item) return null;
-            return (
-              <span
-                key={id}
-                className="inline-flex max-w-full items-center gap-1 rounded-sm border border-border bg-card px-1.5 py-0.5 text-[10px] text-muted-foreground"
-              >
-                <span className="truncate">{item.name}</span>
-                <button
-                  type="button"
-                  aria-label={`Remove ${item.name} from ${label}`}
-                  onClick={() => onRemove(campaign.id, audience, id)}
-                  className="shrink-0 hover:text-destructive"
-                >
-                  <X size={9} />
-                </button>
-              </span>
-            );
-          })}
+          {ids.map((id) => (
+            <MediaChip
+              key={id}
+              mediaId={id}
+              media={media}
+              onRemove={() => onRemove(campaign.id, audience, id)}
+              removeLabel={`Remove from ${label}`}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -99,9 +125,10 @@ function AudienceRow({
 }
 
 /**
- * Full overlay for attaching text-media. Three global targets (All, Direct,
- * OTA guests) apply a file across every campaign; individual campaign cards
- * take per-audience drops and removals.
+ * Full overlay for attaching media. Text and Email have separate tabs; each
+ * has three global targets (All, Direct, OTA guests) that apply across every
+ * campaign — with thumbnails and one-click removal everywhere — plus
+ * individual campaign cards with per-segment drops.
  */
 export function MediaAssignOverlay({
   campaigns,
@@ -111,6 +138,7 @@ export function MediaAssignOverlay({
   onClose: () => void;
 }) {
   const { media, folders } = useMarketing();
+  const [channel, setChannel] = useState<MessageChannel>("text");
   const [query, setQuery] = useState("");
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -160,21 +188,26 @@ export function MediaAssignOverlay({
     const id = pickedId(event);
     if (!id) return;
     campaigns.forEach((campaign) =>
-      attachMediaToCampaign(campaign.id, id, audiences === "all" ? ["direct", "ota"] : audiences),
+      attachMediaToCampaign(campaign.id, id, audiences === "all" ? ["direct", "ota"] : audiences, channel),
     );
   };
 
   const dropCampaign = (campaignId: string, audience: AudienceKey) => {
     if (!dragging) return;
-    attachMediaToCampaign(campaignId, dragging, [audience]);
+    attachMediaToCampaign(campaignId, dragging, [audience], channel);
     setDragging(null);
   };
+
+  const globalScopes: { key: string; label: string; hint: string; audiences: AudienceKey[] | "all" }[] = [
+    { key: "all", label: "All guests", hint: "Every campaign · both segments", audiences: "all" },
+    ...AUDIENCES.map((a) => ({ key: a.key, label: a.label, hint: a.hint, audiences: [a.key] as AudienceKey[] })),
+  ];
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
       <header className="flex items-center gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand">Text media</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand">Media</p>
           <h2 className="truncate text-[17px] font-semibold text-card-foreground">Attach media to campaigns</h2>
           <p className="truncate text-[11.5px] text-muted-foreground">
             Drop a file on All, Direct or OTA guests to apply it everywhere, or on a single campaign.
@@ -185,9 +218,30 @@ export function MediaAssignOverlay({
         </Button>
       </header>
 
+      {/* Channel tabs */}
+      <div className="flex gap-1 border-b border-border bg-card px-4 pt-2 sm:px-6">
+        {(["text", "email"] as MessageChannel[]).map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setChannel(c)}
+            aria-pressed={channel === c}
+            className={`rounded-t-md border-b-2 px-4 py-2 text-[12.5px] font-semibold transition-colors ${
+              channel === c
+                ? "border-brand text-brand"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {c === "text" ? "Text" : "Email"}
+          </button>
+        ))}
+      </div>
+
       <p className="flex items-start gap-2 border-b border-border bg-brand-soft/50 px-4 py-2 text-[11.5px] text-muted-foreground sm:px-6">
         <Info size={13} className="mt-[1px] shrink-0 text-brand" />
-        These files are sent with the text message only. Images and video travel as MMS, documents are sent as a link.
+        {channel === "text"
+          ? "These files travel with the text message. Images and video are sent as MMS; documents are sent as a link."
+          : "These images are placed inside the email content for every campaign in the chosen scope."}
       </p>
 
       <div className="grid min-h-0 flex-1 overflow-hidden md:grid-cols-[300px_1fr]">
@@ -250,31 +304,49 @@ export function MediaAssignOverlay({
             Apply to every campaign
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
-            <div
-              onDragOver={(event) => allow(event, "all")}
-              onDragLeave={() => setOver((c) => (c === "all" ? null : c))}
-              onDrop={(event) => dropGlobal(event, "all")}
-              className={`rounded-md border-2 border-dashed px-3 py-3.5 transition-colors ${
-                over === "all" ? "border-brand bg-brand-soft" : "border-brand/35 bg-brand-soft/40"
-              }`}
-            >
-              <p className="text-[12.5px] font-semibold text-card-foreground">All guests</p>
-              <p className="text-[11px] text-muted-foreground">Every campaign · both segments</p>
-            </div>
-            {AUDIENCES.map((a) => (
-              <div
-                key={a.key}
-                onDragOver={(event) => allow(event, a.key)}
-                onDragLeave={() => setOver((c) => (c === a.key ? null : c))}
-                onDrop={(event) => dropGlobal(event, [a.key])}
-                className={`rounded-md border-2 border-dashed px-3 py-3.5 transition-colors ${
-                  over === a.key ? "border-brand bg-brand-soft" : "border-border bg-card"
-                }`}
-              >
-                <p className="text-[12.5px] font-semibold text-card-foreground">{a.label}</p>
-                <p className="text-[11px] text-muted-foreground">{a.hint}</p>
-              </div>
-            ))}
+            {globalScopes.map((scope) => {
+              const common = commonMediaIds(campaigns, scope.audiences === "all" ? ["direct", "ota"] : scope.audiences, channel);
+              return (
+                <div
+                  key={scope.key}
+                  onDragOver={(event) => allow(event, scope.key)}
+                  onDragLeave={() => setOver((c) => (c === scope.key ? null : c))}
+                  onDrop={(event) => dropGlobal(event, scope.audiences)}
+                  className={`rounded-md border-2 border-dashed px-3 py-3 transition-colors ${
+                    over === scope.key
+                      ? "border-brand bg-brand-soft"
+                      : scope.key === "all"
+                        ? "border-brand/35 bg-brand-soft/40"
+                        : "border-border bg-card"
+                  }`}
+                >
+                  <p className="text-[12.5px] font-semibold text-card-foreground">{scope.label}</p>
+                  <p className="text-[11px] text-muted-foreground">{scope.hint}</p>
+                  {common.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1 border-t border-border pt-2">
+                      {common.map((id) => (
+                        <MediaChip
+                          key={id}
+                          mediaId={id}
+                          media={media}
+                          removeLabel={`Remove from every campaign (${scope.label})`}
+                          onRemove={() =>
+                            campaigns.forEach((campaign) =>
+                              detachMediaFromCampaign(
+                                campaign.id,
+                                id,
+                                scope.audiences === "all" ? ["direct", "ota"] : scope.audiences,
+                                channel,
+                              ),
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <p className="mt-5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -289,7 +361,7 @@ export function MediaAssignOverlay({
                 onDrop={(event) => {
                   // Dropping on the card body (not a segment) applies to both.
                   const id = pickedId(event);
-                  if (id) attachMediaToCampaign(campaign.id, id);
+                  if (id) attachMediaToCampaign(campaign.id, id, ["direct", "ota"], channel);
                 }}
                 className={`rounded-md border bg-card p-3 shadow-card transition-colors ${
                   over === campaign.id ? "border-brand bg-brand-soft" : "border-border"
@@ -303,11 +375,12 @@ export function MediaAssignOverlay({
                       campaign={campaign}
                       audience={a.key}
                       label={a.label}
+                      channel={channel}
                       media={media}
                       dragging={dragging}
                       onDrop={dropCampaign}
                       onRemove={(campaignId, audience, mediaId) =>
-                        detachMediaFromCampaign(campaignId, mediaId, [audience])
+                        detachMediaFromCampaign(campaignId, mediaId, [audience], channel)
                       }
                     />
                   ))}
