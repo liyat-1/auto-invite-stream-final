@@ -925,5 +925,8 @@ export function commonMediaIds(
 
 export const MEDIA_DRAG_TYPE = "application/x-directful-media";
 export const CAMPAIGN_DRAG_TYPE = "application/x-directful-campaign";
+/** Drag payload for a whole collection of campaigns: "both" | "direct" | "ota". */
+export const CAMPAIGN_BULK_DRAG_TYPE = "application/x-directful-campaign-bulk";
+export type BulkScope = "both" | "direct" | "ota";
 export const PROMO_DRAG_TYPE = "application/x-directful-promotion";
 
