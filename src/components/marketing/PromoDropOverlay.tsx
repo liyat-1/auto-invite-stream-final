@@ -48,11 +48,12 @@ function SegmentChecks({
   onToggle: (audience: AudienceKey, value: boolean) => void;
   onRemove: () => void;
   onDragStart: (event: React.DragEvent) => void;
+  onDragEnd: () => void;
 }) {
   const ids = { direct: campaign.variants.direct, ota: campaign.variants.ota };
   return (
-    <div draggable onDragStart={onDragStart} className="flex cursor-grab items-center gap-2 rounded-sm border border-border bg-background px-2 py-1.5 active:cursor-grabbing">
-      <GripVertical size={11} className="shrink-0 text-muted-foreground/60" />
+    <div draggable onDragStart={onDragStart} onDragEnd={onDragEnd} className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-2.5 py-2 shadow-sm active:cursor-grabbing">
+      <GripVertical size={12} className="shrink-0 text-muted-foreground/60" />
       <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-card-foreground">{campaign.name}</span>
       {AUDIENCE_KEYS.map((audience) => {
         const checked = ids[audience].promotionMode === "custom" && ids[audience].promotionId === promotionId;
@@ -332,6 +333,7 @@ export function PromoDropOverlay({
                             AUDIENCE_KEYS.forEach((a) => setVariantPromotion(campaign.id, a, null))
                           }
                           onDragStart={(event) => beginDrag(event, campaign.id)}
+                          onDragEnd={() => { setDragging(null); setOverArea(null); }}
                         />
                       ))}
                       {assigned.length === 0 && (
