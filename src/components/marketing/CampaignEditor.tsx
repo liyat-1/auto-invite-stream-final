@@ -221,10 +221,6 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                   {active && (
                     <div className="border-t border-border px-4 py-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex gap-1 rounded-md bg-muted p-1">
-                          <button onClick={() => setChannel("text")} className={segment(activeChannel === "text")}>Text</button>
-                          <button onClick={() => supportsEmail && setChannel("email")} disabled={!supportsEmail} className={segment(activeChannel === "email", !supportsEmail)}>Email</button>
-                        </div>
                         <div className="ml-auto flex flex-wrap items-center gap-1.5">
                           <SectionAction icon={History} label="History" active={panel === "history"} onClick={() => setPanel((p) => (p === "history" ? null : "history"))} />
                           <SectionAction icon={HelpCircle} label="Help" active={panel === "help"} onClick={() => setPanel((p) => (p === "help" ? null : "help"))} />
