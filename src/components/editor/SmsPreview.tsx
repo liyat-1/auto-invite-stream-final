@@ -46,6 +46,21 @@ export function SmsPreview({
           </span>
         </div>
       }
+      footer={
+        <div className="relative px-3 pb-1 pt-2">
+          {/* frosted glass tray */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[-28px] bg-gradient-to-t from-white/85 via-white/60 to-transparent backdrop-blur-xl" />
+          <div className="relative flex items-center gap-2.5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white/55 shadow-[0_6px_18px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-black/5 backdrop-blur-2xl">
+              <Plus size={21} className="text-zinc-700" strokeWidth={2.5} />
+            </span>
+            <div className="flex h-11 flex-1 items-center justify-between rounded-full bg-white/55 px-5 shadow-[0_6px_18px_rgba(0,0,0,0.10),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-black/10 backdrop-blur-2xl">
+              <span className="text-[16px] text-zinc-500">iMessage</span>
+              <Mic size={18} className="text-zinc-500" />
+            </div>
+          </div>
+        </div>
+      }
     >
       <div className="space-y-2 px-4 pb-4 pt-3">
         <p className="mb-1 text-center text-[11px] font-medium text-zinc-400">
