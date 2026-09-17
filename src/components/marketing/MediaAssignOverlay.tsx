@@ -138,6 +138,7 @@ export function MediaAssignOverlay({
   const [over, setOver] = useState<number | null>(null);
   const [picker, setPicker] = useState<number | null>(null);
   const [details, setDetails] = useState<number | null>(null);
+  const [bulk, setBulk] = useState<BulkScope | null>(null);
 
   useEffect(() => {
     try {
