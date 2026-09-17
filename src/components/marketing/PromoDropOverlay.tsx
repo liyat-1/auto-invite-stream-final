@@ -141,6 +141,7 @@ export function PromoDropOverlay({
   const [picker, setPicker] = useState<number | null>(null);
   const [details, setDetails] = useState<number | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [bulk, setBulk] = useState<BulkScope | null>(null);
 
   useEffect(() => {
     try {
