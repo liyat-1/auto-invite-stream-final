@@ -84,7 +84,7 @@ export function PhoneMockup({
 
               {chrome}
 
-              <div className="relative min-h-0 flex-1 overflow-y-auto">{children}</div>
+              <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
 
               {/* Home indicator */}
               <div className="relative z-20 flex h-6 shrink-0 items-center justify-center">

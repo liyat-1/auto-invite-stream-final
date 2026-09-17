@@ -1,11 +1,12 @@
-import { ChevronLeft, Info, Camera, AppWindow, Mic, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Video, Mic, Plus } from "lucide-react";
 import { PhoneMockup } from "./PhoneMockup";
 import { renderTokens } from "@/lib/campaign";
 import { CODE_TYPE_LABEL, type Promotion } from "@/lib/marketing";
 
 /**
- * iMessage-style SMS preview inside the shared iPhone frame, with the latest
- * frosted-glass navigation and composer treatment.
+ * iMessage preview matching the current iOS look: floating frosted circular
+ * nav buttons, a centred avatar with a glass name pill, grey incoming bubbles
+ * and a rounded glass composer.
  */
 export function SmsPreview({
   message,
@@ -25,48 +26,55 @@ export function SmsPreview({
   return (
     <PhoneMockup
       scale={scale}
-      contentClassName="bg-[#f2f2f7]"
+      contentClassName="bg-white"
       chrome={
-        <div className="relative z-20 flex shrink-0 items-center justify-between border-b border-white/40 bg-white/65 px-4 py-2.5 shadow-[0_1px_0_rgba(0,0,0,0.04)] backdrop-blur-xl">
-          <ChevronLeft size={22} className="text-[#007aff]" strokeWidth={2.5} />
+        <div className="pointer-events-none relative z-30 -mt-1 flex shrink-0 items-start justify-between px-4 pb-1">
+          <span className="grid size-9 place-items-center rounded-full bg-white/70 shadow-[0_2px_10px_rgba(0,0,0,0.10)] ring-1 ring-black/5 backdrop-blur-xl">
+            <ChevronLeft size={20} className="text-zinc-800" strokeWidth={2.5} />
+          </span>
           <div className="flex flex-col items-center">
-            <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-zinc-300 to-zinc-400 text-[10px] font-semibold text-white shadow-sm">
+            <span className="grid size-[46px] place-items-center rounded-full bg-gradient-to-br from-[#8fd3f4] via-[#a6c1ee] to-[#fbc2eb] text-[14px] font-semibold text-white shadow-[0_4px_14px_rgba(0,0,0,0.14)] ring-1 ring-white/70">
               {sender.slice(0, 2).toUpperCase()}
             </span>
-            <span className="mt-0.5 text-[10.5px] font-medium text-zinc-700">{sender}</span>
+            <span className="mt-1.5 flex items-center gap-0.5 rounded-full bg-white/75 px-2.5 py-1 text-[12px] font-semibold text-zinc-900 shadow-[0_2px_10px_rgba(0,0,0,0.10)] ring-1 ring-black/5 backdrop-blur-xl">
+              {sender}
+              <ChevronRight size={12} className="text-zinc-400" strokeWidth={3} />
+            </span>
           </div>
-          <Info size={20} className="text-[#007aff]" />
+          <span className="grid size-9 place-items-center rounded-full bg-white/70 shadow-[0_2px_10px_rgba(0,0,0,0.10)] ring-1 ring-black/5 backdrop-blur-xl">
+            <Video size={18} className="text-zinc-800" strokeWidth={2} />
+          </span>
         </div>
       }
     >
-      <div className="space-y-2 px-3.5 py-4">
-        <p className="mb-1 text-center text-[10.5px] font-medium text-zinc-400">
-          Text Message · Today 5:00 PM
+      <div className="space-y-2 px-4 pb-4 pt-3">
+        <p className="mb-1 text-center text-[11px] font-medium text-zinc-400">
+          iMessage · Today 5:00 PM
         </p>
         {imageUrl && (
-          <div className="max-w-[75%] overflow-hidden rounded-[1.35rem] rounded-bl-md shadow-sm ring-1 ring-black/5">
+          <div className="max-w-[72%] overflow-hidden rounded-[1.4rem] rounded-bl-[0.45rem] shadow-sm ring-1 ring-black/5">
             <img src={imageUrl} alt="" className="block h-40 w-full object-cover" />
           </div>
         )}
-        <div className="max-w-[85%] rounded-[1.35rem] rounded-bl-md bg-white/85 px-3.5 py-2.5 shadow-sm ring-1 ring-black/5 backdrop-blur">
-          <p className="whitespace-pre-wrap text-[14.5px] leading-[1.35] text-zinc-900">
+        <div className="max-w-[80%] rounded-[1.4rem] rounded-bl-[0.45rem] bg-[#e9e9eb] px-3.5 py-2.5">
+          <p className="whitespace-pre-wrap text-[15px] leading-[1.35] text-zinc-900">
             {renderTokens(message)}
           </p>
           {link && (
-            <p className="mt-1 break-all text-[14px] leading-[1.35] text-[#007aff] underline">
+            <p className="mt-1 break-all text-[14.5px] leading-[1.35] text-[#007aff] underline">
               {link}
             </p>
           )}
         </div>
         {promotion && (
-          <div className="max-w-[85%] overflow-hidden rounded-[1.35rem] rounded-bl-md bg-white/90 shadow-sm ring-1 ring-black/5 backdrop-blur">
+          <div className="max-w-[80%] overflow-hidden rounded-[1.4rem] rounded-bl-[0.45rem] bg-[#e9e9eb]">
             <div className="bg-zinc-900 px-3.5 py-2.5 text-white">
-              <p className="text-[10px] font-semibold uppercase text-zinc-300">Your exclusive offer</p>
-              <p className="mt-0.5 text-[14px] font-semibold leading-snug">{promotion.tagline || promotion.name}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-300">Your exclusive offer</p>
+              <p className="mt-0.5 text-[14.5px] font-semibold leading-snug">{promotion.tagline || promotion.name}</p>
             </div>
             <div className="px-3.5 py-2.5">
-              <p className="text-[12px] leading-snug text-zinc-600">{promotion.detail}</p>
-              <p className="mt-2 text-[12px] font-semibold text-[#007aff]">
+              <p className="text-[12.5px] leading-snug text-zinc-600">{promotion.detail}</p>
+              <p className="mt-2 text-[12.5px] font-semibold text-[#007aff]">
                 {CODE_TYPE_LABEL[promotion.codeType ?? "promo"]}: {promotion.code}
               </p>
             </div>
@@ -74,12 +82,13 @@ export function SmsPreview({
         )}
       </div>
 
-      <div className="sticky bottom-0 mt-auto flex items-center gap-2.5 border-t border-white/50 bg-white/70 px-3 py-2.5 backdrop-blur-xl">
-        <Camera size={20} className="shrink-0 text-zinc-500" />
-        <AppWindow size={20} className="shrink-0 text-zinc-500" />
-        <div className="flex h-8 flex-1 items-center justify-between rounded-full border border-zinc-300/80 bg-white/80 px-3 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
-          <span className="text-[13px] text-zinc-400">iMessage</span>
-          <Plus size={14} className="text-zinc-400" />
+      <div className="sticky bottom-0 mt-auto flex items-center gap-2.5 bg-white/70 px-3.5 py-3 backdrop-blur-xl">
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#e9e9eb]">
+          <Plus size={19} className="text-zinc-600" strokeWidth={2.5} />
+        </span>
+        <div className="flex h-9 flex-1 items-center justify-between rounded-full border border-zinc-300/70 bg-white/85 px-4">
+          <span className="text-[14.5px] text-zinc-400">iMessage</span>
+          <Mic size={16} className="text-zinc-400" />
         </div>
       </div>
     </PhoneMockup>

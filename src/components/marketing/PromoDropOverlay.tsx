@@ -15,8 +15,8 @@ import {
 } from "@/lib/marketing";
 
 const AUDIENCE_KEYS: AudienceKey[] = ["direct", "ota"];
-const AREA_COUNT = 4;
-const STORAGE_KEY = "directful.promo-areas";
+const AREA_COUNT = 3;
+const STORAGE_KEY = "directful.promo-areas-v3";
 
 type Areas = (string | null)[];
 
@@ -30,7 +30,7 @@ function loadAreas(promotions: Promotion[]): Areas {
   } catch {
     /* ignore */
   }
-  return [0, 1, 2, 3].map((i) => promotions[i]?.id ?? null);
+  return Array.from({ length: AREA_COUNT }, (_, i) => promotions[i]?.id ?? null);
 }
 
 /** One campaign chip under an offer: which guest segments receive it. */
@@ -41,6 +41,7 @@ function SegmentChecks({
   onToggle,
   onRemove,
   onDragStart,
+  onDragEnd,
 }: {
   campaign: MarketingCampaign;
   promotionId: string;
@@ -48,11 +49,12 @@ function SegmentChecks({
   onToggle: (audience: AudienceKey, value: boolean) => void;
   onRemove: () => void;
   onDragStart: (event: React.DragEvent) => void;
+  onDragEnd: () => void;
 }) {
   const ids = { direct: campaign.variants.direct, ota: campaign.variants.ota };
   return (
-    <div draggable onDragStart={onDragStart} className="flex cursor-grab items-center gap-2 rounded-sm border border-border bg-background px-2 py-1.5 active:cursor-grabbing">
-      <GripVertical size={11} className="shrink-0 text-muted-foreground/60" />
+    <div draggable onDragStart={onDragStart} onDragEnd={onDragEnd} className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-2.5 py-2 shadow-sm active:cursor-grabbing">
+      <GripVertical size={12} className="shrink-0 text-muted-foreground/60" />
       <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-card-foreground">{campaign.name}</span>
       {AUDIENCE_KEYS.map((audience) => {
         const checked = ids[audience].promotionMode === "custom" && ids[audience].promotionId === promotionId;
@@ -151,6 +153,7 @@ export function PromoDropOverlay({
 
   const beginDrag = (event: React.DragEvent, campaignId: string) => {
     event.dataTransfer.setData(CAMPAIGN_DRAG_TYPE, campaignId);
+    event.dataTransfer.setData("text/plain", campaignId);
     event.dataTransfer.effectAllowed = "move";
     setDragging(campaignId);
   };
@@ -178,28 +181,23 @@ export function PromoDropOverlay({
     setVariantPromotion(campaignId, audience, value ? promotionId : null);
   };
 
+  /** Dropping a campaign onto an offer moves it there for both guest segments. */
   const dropCampaign = (campaignId: string, promotionId: string) => {
     const campaign = campaigns.find((c) => c.id === campaignId);
     if (!campaign) return;
-    const conflict = conflictOf(campaign, promotionId);
-    AUDIENCE_KEYS.forEach((audience) => {
-      if (!conflict[audience]) setVariantPromotion(campaignId, audience, promotionId);
-    });
-    const blocked = AUDIENCE_KEYS.filter((a) => conflict[a]);
-    if (blocked.length === 2) {
-      setNote(`${campaign.name} already receives a different offer for both guest segments.`);
-    } else if (blocked.length === 1) {
-      setNote(
-        `${campaign.name} attached for ${blocked[0] === "direct" ? "OTA" : "Direct"} guests. Its ${blocked[0] === "direct" ? "Direct" : "OTA"} guests keep their existing offer — untick or replace it below.`,
-      );
-    }
+    AUDIENCE_KEYS.forEach((audience) => setVariantPromotion(campaignId, audience, promotionId));
+    setNote(null);
   };
 
   const allow = (event: React.DragEvent) => {
-    if (!event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
     event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
+    event.dataTransfer.dropEffect = "move";
   };
+
+  /** Campaign id from the drag payload, falling back to the tracked drag. */
+  const draggedId = (event: React.DragEvent) =>
+    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
@@ -237,31 +235,31 @@ export function PromoDropOverlay({
           <p className="text-[11px] text-muted-foreground">Drag campaign cards between columns</p>
         </div>
 
-        <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-3 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <section
             onDragOver={(event) => { allow(event); setOverArea(-1); }}
             onDragLeave={() => setOverArea((current) => (current === -1 ? null : current))}
             onDrop={(event) => {
               event.preventDefault();
-              const campaignId = event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE);
+              const campaignId = draggedId(event);
               if (campaignId) AUDIENCE_KEYS.forEach((key) => setVariantPromotion(campaignId, key, null));
               setOverArea(null);
               setDragging(null);
             }}
-            className={`flex min-h-[260px] flex-col rounded-lg border p-3 transition-colors ${overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"}`}
+            className={`flex min-h-[340px] flex-col rounded-xl border p-4 transition-colors ${overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"}`}
           >
             <div className="flex items-start gap-2 border-b border-border pb-2.5">
               <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground"><Ban size={15} /></span>
               <div><p className="text-[12.5px] font-semibold text-card-foreground">No promotion</p><p className="mt-0.5 text-[10.5px] text-muted-foreground">Campaigns without an assigned offer</p></div>
             </div>
-            <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+            <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
               {unassigned.map((campaign) => (
-                <article key={campaign.id} draggable onDragStart={(event) => beginDrag(event, campaign.id)} onDragEnd={() => setDragging(null)} className={`flex cursor-grab items-center gap-2 rounded-sm border border-border bg-background px-2 py-2 active:cursor-grabbing ${dragging === campaign.id ? "opacity-50" : ""}`}>
-                  <GripVertical size={11} className="shrink-0 text-muted-foreground/60" />
-                  <div className="min-w-0"><p className="truncate text-[11.5px] font-medium text-card-foreground">{campaign.name}</p><p className="truncate text-[10px] text-muted-foreground">{campaign.timing}</p></div>
+                <article key={campaign.id} draggable onDragStart={(event) => beginDrag(event, campaign.id)} onDragEnd={() => { setDragging(null); setOverArea(null); }} className={`flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-2.5 py-2.5 shadow-sm transition-shadow hover:shadow active:cursor-grabbing ${dragging === campaign.id ? "opacity-50" : ""}`}>
+                  <GripVertical size={12} className="shrink-0 text-muted-foreground/60" />
+                  <div className="min-w-0"><p className="truncate text-[12px] font-medium text-card-foreground">{campaign.name}</p><p className="truncate text-[10.5px] text-muted-foreground">{campaign.timing}</p></div>
                 </article>
               ))}
-              {unassigned.length === 0 && <p className="rounded-md border border-dashed border-border px-3 py-5 text-center text-[11px] text-muted-foreground">Drop here to remove a promotion</p>}
+              {unassigned.length === 0 && <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-[11px] text-muted-foreground">Drop here to remove a promotion</p>}
             </div>
           </section>
           {areas.map((promotionId, index) => {
@@ -277,13 +275,13 @@ export function PromoDropOverlay({
                 onDragLeave={() => setOverArea((c) => (c === index ? null : c))}
                 onDrop={(event) => {
                   event.preventDefault();
-                  const id = event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE);
+                  const id = draggedId(event);
                   setOverArea(null);
                   setDragging(null);
                   if (id && promotion) dropCampaign(id, promotion.id);
                 }}
-                className={`flex min-h-[220px] flex-col rounded-lg border p-3 transition-colors ${
-                  overArea === index ? "border-brand bg-brand-soft" : promotion ? "border-brand/30 bg-brand-soft/30" : "border-dashed border-border bg-card"
+                className={`flex min-h-[340px] flex-col rounded-xl border p-4 transition-colors ${
+                  overArea === index ? "border-brand bg-brand-soft ring-2 ring-brand/30" : promotion ? "border-brand/30 bg-brand-soft/30" : "border-dashed border-border bg-card"
                 }`}
               >
                 {promotion ? (
@@ -320,7 +318,7 @@ export function PromoDropOverlay({
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+                    <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
                       {assigned.map((campaign) => (
                         <SegmentChecks
                           key={campaign.id}
@@ -332,6 +330,7 @@ export function PromoDropOverlay({
                             AUDIENCE_KEYS.forEach((a) => setVariantPromotion(campaign.id, a, null))
                           }
                           onDragStart={(event) => beginDrag(event, campaign.id)}
+                          onDragEnd={() => { setDragging(null); setOverArea(null); }}
                         />
                       ))}
                       {assigned.length === 0 && (
