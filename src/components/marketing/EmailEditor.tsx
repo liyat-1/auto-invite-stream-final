@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ChevronDown, Gift, LayoutTemplate, Rows3, Trash2 } from "lucide-react";
 import { TemplateLibrary } from "./TemplateLibrary";
 import { LayoutLibrary, LayoutThumb } from "./LayoutLibrary";

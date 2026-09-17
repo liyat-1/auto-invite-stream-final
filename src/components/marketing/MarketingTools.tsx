@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Layers, Gift, Image } from "lucide-react";
 import { StrategyOverlay } from "./StrategyOverlay";
 import { PromoDropOverlay } from "./PromoDropOverlay";
