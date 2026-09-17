@@ -14,7 +14,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BulkDragChips } from "./BulkDragChips";
 import {
+  CAMPAIGN_BULK_DRAG_TYPE,
   CAMPAIGN_DRAG_TYPE,
   CODE_TYPE_LABEL,
   promotionDuration,
@@ -22,6 +24,7 @@ import {
   setVariantPromotion,
   useMarketing,
   type AudienceKey,
+  type BulkScope,
   type MarketingCampaign,
   type Promotion,
 } from "@/lib/marketing";
