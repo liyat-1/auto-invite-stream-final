@@ -98,3 +98,19 @@
 - [x] Add Upgrade card, Schedule card, and Included perks image-led templates
 - [x] Add matching template previews to the promotion editor
 - [x] Verify the editor and chooser at desktop and mobile widths
+
+## Campaign management and content editor redesign
+
+- [x] Replace the collapsible strategy panel with one launcher button plus direct promo/media buttons with status counts
+- [x] Show strategy explanations beneath each drop column with a "What does this mean?" help control in the popup
+- [x] Rebuild promo assignment around four user-chosen offer areas with a "Choose promotion" picker
+- [x] List campaigns as a draggable horizontal row below the offer areas
+- [x] Add Direct/OTA checkboxes on each campaign/offer relationship with conflict notes
+- [x] Add All/Direct/OTA global media targets and per-campaign per-audience drops and removals
+- [x] Make media helpers audience-scoped while keeping combined campaign summaries
+- [x] Replace editor tabs with Direct/OTA audience sections driving the persistent preview
+- [x] Move media/promotion (text) and promotion (email) into expandable Advanced settings
+- [x] Keep template/layout secondary in email editing; copy fields first
+- [x] Add History, Help and Spam check panels to each audience section
+- [x] Refresh the phone frame and iMessage preview with frosted-glass chrome
+- [x] Verified overlays, drag model, editor panels, and email/text previews via Playwright — no console errors; typecheck clean

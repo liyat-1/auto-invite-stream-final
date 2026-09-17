@@ -1,9 +1,8 @@
 import { Wifi, BatteryFull, SignalHigh } from "lucide-react";
 
 /**
- * Refreshed iPhone 15 Pro-style frame: polished titanium rail with a warm
- * highlight, extra-thin bezel, refined Dynamic Island and a subtle screen
- * glass reflection. API unchanged.
+ * Latest-generation iPhone frame: slim frosted-aluminium rail, extra-thin
+ * bezel, refined Dynamic Island and a soft glass reflection. API unchanged.
  */
 export function PhoneMockup({
   children,

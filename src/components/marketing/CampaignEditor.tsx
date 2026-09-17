@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Gift, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, History, HelpCircle, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { TextEditor } from "./TextEditor";
-import { EmailEditor } from "./EmailEditor";
-import { PromoBanner } from "./PromoBanner";
+import { EmailEditor, EmailPreview } from "./EmailEditor";
 import { PromotionSelector } from "./PromotionSelector";
+import { SmsPreview } from "@/components/editor/SmsPreview";
+import { checkContent } from "./contentChecks";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -17,9 +18,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   AUDIENCE_LABEL,
+  MERGE_TAGS,
   STRATEGY_LABEL,
   defaultVariant,
   effectivePromotion,
+  fullTime,
   mutate,
   strategyHasEmail,
   useMarketing,
@@ -29,6 +32,46 @@ import {
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
+type Panel = "history" | "help" | "spam" | null;
+
+/** Small round action used for History / Help / Spam check on each section. */
+function SectionAction({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick();
+      }}
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+        active ? "border-brand bg-brand-soft text-brand" : "border-border text-muted-foreground hover:border-brand/45 hover:text-foreground"
+      }`}
+    >
+      <Icon size={11} />
+      {label}
+    </button>
+  );
+}
+
+function InfoPanel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-md border border-border bg-muted/40 px-3.5 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+      <div className="mt-2">{children}</div>
+    </div>
+  );
+}
+
 export function CampaignEditor({ id, onClose }: { id: string; onClose: () => void }) {
   const marketing = useMarketing();
   const { campaigns } = marketing;
@@ -37,6 +80,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
   const [baseline, setBaseline] = useState(() => source ? JSON.stringify(source) : "");
   const [audience, setAudience] = useState<AudienceKey>("direct");
   const [channel, setChannel] = useState<"text" | "email">("text");
+  const [panel, setPanel] = useState<Panel>(null);
   const [confirm, setConfirm] = useState<"leave" | "save" | "revert" | null>(null);
   const [promotionPicker, setPromotionPicker] = useState(false);
   const dirty = useMemo(() => draft ? JSON.stringify(draft) !== baseline : false, [draft, baseline]);
@@ -50,7 +94,8 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
 
   if (!source || !draft) return null;
   const variant = draft.variants[audience];
-  const activeChannel = strategyHasEmail(draft.strategy) ? channel : "text";
+  const supportsEmail = strategyHasEmail(draft.strategy);
+  const activeChannel = supportsEmail ? channel : "text";
   const activePromotion = effectivePromotion(marketing, draft, audience);
   const closeSafely = () => dirty ? setConfirm("leave") : onClose();
   const save = () => {
@@ -100,6 +145,21 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
 
   const segment = (active: boolean, disabled = false) => `rounded px-3 py-1.5 text-[12.5px] font-medium transition-colors ${active ? "bg-card text-card-foreground shadow-card" : disabled ? "cursor-not-allowed text-muted-foreground/45" : "text-muted-foreground hover:text-foreground"}`;
 
+  const previewMedia = (variant.text.mediaIds ?? [])
+    .map((mid) => marketing.media.find((m) => m.id === mid))
+    .find((m) => m?.type === "image" && m.url);
+
+  const spamChecks = checkContent(
+    activeChannel === "text"
+      ? [{ label: "message", text: variant.text.message }]
+      : [
+          { label: "subject", text: variant.email.subject },
+          { label: "preheader", text: variant.email.preheader },
+          { label: "heading", text: variant.email.heading },
+          { label: "body", text: variant.email.body },
+        ],
+  );
+
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-foreground/70 p-2 sm:p-4" onMouseDown={(event) => event.target === event.currentTarget && closeSafely()}>
       <section role="dialog" aria-modal="true" aria-labelledby="campaign-editor-title" className="flex h-[92vh] max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg border border-border bg-canvas shadow-float">
@@ -110,50 +170,155 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
         <div className="flex items-center gap-2"><span className={`mr-auto text-[11.5px] sm:mr-0 ${dirty ? "text-brand" : "text-muted-foreground"}`}>{dirty ? "Unsaved changes" : "All changes saved"}</span><Button variant="brand" size="sm" disabled={!dirty} onClick={requestSave}><Check size={14} />Save changes</Button><Button variant="ghost" size="icon" onClick={closeSafely} aria-label="Close editor"><X size={18} /></Button></div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2.5 sm:gap-3 sm:px-6">
-        <div className="flex gap-1 rounded-md bg-muted p-1">{(["direct", "ota"] as AudienceKey[]).map((key) => <button key={key} onClick={() => setAudience(key)} className={segment(audience === key)}>{AUDIENCE_LABEL[key]}{draft.variants[key].customized && <span className="ml-1.5 inline-block size-1.5 rounded-full bg-brand" />}</button>)}</div>
-        <div className="flex gap-1 rounded-md bg-muted p-1"><button onClick={() => setChannel("text")} className={segment(activeChannel === "text")}>Text</button><button onClick={() => strategyHasEmail(draft.strategy) && setChannel("email")} disabled={!strategyHasEmail(draft.strategy)} className={segment(activeChannel === "email", !strategyHasEmail(draft.strategy))}>Email</button></div>
-        <span className="hidden text-[11.5px] text-muted-foreground md:inline">{activeChannel === "text" ? "Text" : "Email"} · <span className={variant.customization[activeChannel] ? "font-medium text-brand" : ""}>{variant.customization[activeChannel] ? "Customized" : "Default"}</span></span>
-        <Button variant="ghost" size="sm" className="ml-auto px-2 sm:px-3" disabled={!variant.customization[activeChannel]} onClick={() => setConfirm("revert")}><RotateCcw size={13} /><span className="hidden sm:inline">Revert content</span><span className="sm:hidden">Revert</span></Button>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="rounded-lg border border-border bg-card p-4 shadow-card sm:p-6">
-            {activeChannel === "text" ? (
-              <TextEditor value={variant.text} promotion={activePromotion} onChange={(text) => setVariant({ ...variant, text }, "text")} />
-            ) : (
-              <EmailEditor value={variant.email} promotion={activePromotion} customized={variant.customization.email} onChange={(email) => setVariant({ ...variant, email }, "email")} />
-            )}
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          {/* Audience sections */}
+          <div className="min-w-0 space-y-3">
+            {(["direct", "ota"] as AudienceKey[]).map((key) => {
+              const active = audience === key;
+              const v = draft.variants[key];
+              return (
+                <section
+                  key={key}
+                  className={`overflow-hidden rounded-lg border bg-card shadow-card transition-colors ${active ? "border-brand/45" : "border-border"}`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => { setAudience(key); setPanel(null); }}
+                    aria-expanded={active}
+                    className="flex w-full flex-wrap items-center gap-2.5 px-4 py-3 text-left transition-colors hover:bg-muted/40"
+                  >
+                    <span className={`grid size-8 shrink-0 place-items-center rounded-md text-[11px] font-bold ${active ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground"}`}>
+                      {key === "direct" ? "D" : "O"}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[13.5px] font-semibold text-card-foreground">
+                        {AUDIENCE_LABEL[key]}
+                        {v.customized && <span className="ml-1.5 inline-block size-1.5 rounded-full bg-brand align-middle" />}
+                      </span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {v.customization.text || v.customization.email ? "Customized content" : "Suggested content"}
+                      </span>
+                    </span>
+                    {!active && (
+                      <span className="hidden text-[11px] text-muted-foreground sm:inline">Click to edit</span>
+                    )}
+                  </button>
+
+                  {active && (
+                    <div className="border-t border-border px-4 py-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex gap-1 rounded-md bg-muted p-1">
+                          <button onClick={() => setChannel("text")} className={segment(activeChannel === "text")}>Text</button>
+                          <button onClick={() => supportsEmail && setChannel("email")} disabled={!supportsEmail} className={segment(activeChannel === "email", !supportsEmail)}>Email</button>
+                        </div>
+                        <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                          <SectionAction icon={History} label="History" active={panel === "history"} onClick={() => setPanel((p) => (p === "history" ? null : "history"))} />
+                          <SectionAction icon={HelpCircle} label="Help" active={panel === "help"} onClick={() => setPanel((p) => (p === "help" ? null : "help"))} />
+                          <SectionAction icon={ShieldCheck} label="Spam check" active={panel === "spam"} onClick={() => setPanel((p) => (p === "spam" ? null : "spam"))} />
+                          <Button variant="ghost" size="sm" className="px-2" disabled={!v.customization[activeChannel]} onClick={() => setConfirm("revert")}>
+                            <RotateCcw size={13} />Revert
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 space-y-3">
+                        {panel === "history" && (
+                          <InfoPanel title="History">
+                            {v.editedBy ? (
+                              <p className="text-[12px] text-card-foreground">
+                                Last edited by <strong>{v.editedBy.by}</strong> · {fullTime(v.editedBy.at)}
+                              </p>
+                            ) : (
+                              <p className="text-[12px] text-muted-foreground">This section still uses the suggested content — no edits yet.</p>
+                            )}
+                            <p className="mt-1.5 text-[11.5px] text-muted-foreground">No earlier revisions are recorded yet. Each save records who edited and when.</p>
+                          </InfoPanel>
+                        )}
+                        {panel === "help" && (
+                          <InfoPanel title="Help">
+                            <ul className="space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
+                              {activeChannel === "text" ? (
+                                <>
+                                  <li>· Keep texts short — one clear ask works best, and every 160 characters costs another segment.</li>
+                                  <li>· Tap a merge tag above the box to insert it; it fills in per guest when the message is sent.</li>
+                                  <li>· Attach images or documents under Advanced settings. Images travel as MMS, documents as a link.</li>
+                                </>
+                              ) : (
+                                <>
+                                  <li>· The subject decides whether the email is opened — keep it under about 60 characters.</li>
+                                  <li>· The preheader shows after the subject in the inbox; use it to extend the subject, not repeat it.</li>
+                                  <li>· One button with one clear action converts best. Template and layout stay below the copy.</li>
+                                </>
+                              )}
+                              <li>· Available merge tags: {MERGE_TAGS.map((t) => t.token).join(", ")}.</li>
+                            </ul>
+                          </InfoPanel>
+                        )}
+                        {panel === "spam" && (
+                          <InfoPanel title="Spam check">
+                            <ul className="space-y-1.5">
+                              {spamChecks.map((check) => (
+                                <li key={check.label} className="flex items-start gap-2 text-[12px]">
+                                  <span className={`mt-1 size-1.5 shrink-0 rounded-full ${check.status === "warn" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                                  <span className="min-w-0">
+                                    <span className="font-semibold text-card-foreground">{check.label}:</span>{" "}
+                                    <span className="text-muted-foreground">{check.detail}</span>
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                            <p className="mt-2 text-[11px] text-muted-foreground">Local checks only — carrier filtering can still vary.</p>
+                          </InfoPanel>
+                        )}
+                      </div>
+
+                      <div className="mt-3">
+                        {activeChannel === "text" ? (
+                          <TextEditor
+                            value={v.text}
+                            promotion={activePromotion}
+                            onChange={(text) => setVariant({ ...v, text }, "text")}
+                            onRequestPromotion={() => setPromotionPicker(true)}
+                            onRemovePromotion={() => setPromotion(null)}
+                          />
+                        ) : (
+                          <EmailEditor
+                            value={v.email}
+                            promotion={activePromotion}
+                            customized={v.customization.email}
+                            onChange={(email) => setVariant({ ...v, email }, "email")}
+                            onRequestPromotion={() => setPromotionPicker(true)}
+                            onRemovePromotion={() => setPromotion(null)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              );
+            })}
           </div>
 
-          <section className="rounded-lg border border-border bg-card p-4 shadow-card">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-md bg-brand-soft text-brand"><Gift size={16} /></span>
-                <div className="min-w-0">
-                  <p className="text-[12.5px] font-semibold text-card-foreground">Promotion for {AUDIENCE_LABEL[audience]}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    {activePromotion?.name ?? "No promotion selected"}
-                    {variant.promotionMode === "inherit" ? " · Global promotion" : ""}
-                  </p>
-                </div>
+          {/* Persistent live preview for the active audience */}
+          <div className="min-w-0 lg:sticky lg:top-4 lg:self-start">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Preview · {AUDIENCE_LABEL[audience]} · {activeChannel === "text" ? "Text" : "Email"}
+            </p>
+            {activeChannel === "text" ? (
+              <div className="flex justify-center lg:justify-start">
+                <SmsPreview
+                  message={variant.text.message}
+                  imageUrl={previewMedia?.url ?? null}
+                  sender="Holiday Inn"
+                  scale={0.62}
+                  promotion={activePromotion}
+                />
               </div>
-              <div className="flex items-center gap-2">
-                {activePromotion && (
-                  <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setPromotion(null)}>
-                    <Trash2 size={13} />Remove
-                  </Button>
-                )}
-                <Button variant="outline" size="sm" onClick={() => setPromotionPicker(true)}>{activePromotion ? "Change" : "Add promotion"}</Button>
-              </div>
-            </div>
-            {activePromotion && (
-              <div className="mx-auto mt-4 max-w-md">
-                <PromoBanner promotion={activePromotion} className="shadow-none" />
-              </div>
+            ) : (
+              <EmailPreview value={variant.email} promotion={activePromotion} />
             )}
-          </section>
+          </div>
         </div>
       </div>
 

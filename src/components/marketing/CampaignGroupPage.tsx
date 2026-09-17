@@ -71,7 +71,7 @@ export function CampaignGroupPage({ group }: { group: CampaignGroup }) {
         </div>
 
         <div className="mt-5">
-          <MarketingTools group={group} campaigns={list} />
+          <MarketingTools campaigns={list} />
         </div>
 
         <section className="mt-5">
