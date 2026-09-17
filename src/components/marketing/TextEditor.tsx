@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { ChevronDown, Gift, Image, Trash2 } from "lucide-react";
 import { TagTextArea } from "@/components/campaign/TagTextArea";
+import { EmojiPicker } from "./EmojiPicker";
 import { MediaStrip } from "./MediaStrip";
 import { PromoBanner } from "./PromoBanner";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ export function TextEditor({
   return (
     <div className="min-w-0">
       <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Message</label>
-      <div className="mt-2 flex max-w-full gap-1.5 overflow-x-auto pb-1 sm:flex-wrap">
+      <div className="mt-2 flex max-w-full items-center gap-1.5 overflow-x-auto pb-1 sm:flex-wrap">
         {MERGE_TAGS.map((t) => (
           <button
             key={t.token}
@@ -43,6 +44,9 @@ export function TextEditor({
             {t.label}
           </button>
         ))}
+        <span className="ml-auto shrink-0">
+          <EmojiPicker onPick={(emoji) => (ref.current as any)?.__insertToken?.(emoji)} label="Add emoji to message" />
+        </span>
       </div>
       <div className="mt-2">
         <TagTextArea
@@ -68,8 +72,7 @@ export function TextEditor({
         >
           <span className="flex items-center gap-1.5">
             <Image size={13} className="text-muted-foreground" />
-            Advanced settings
-            <span className="font-normal text-muted-foreground">· media &amp; promotion</span>
+            Media and promotion
           </span>
           <ChevronDown size={14} className={`text-muted-foreground transition-transform ${advanced ? "rotate-180" : ""}`} />
         </button>
