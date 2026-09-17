@@ -128,3 +128,10 @@
 - [x] Verify all updated workflows at desktop and mobile widths
 - [x] Mouse-drag verified across offer columns (No promotion → offer 1 → offer 2) with no errors
 - [x] Phone-width pass on promo manager and content editor — previews and offer banner render correctly
+
+## Config details, media board, phone polish
+
+- [x] Offer columns show a single "See config details" panel (code type, code, discount, minimum nights, validity, per-guest duration, description) with Change/Clear inside
+- [x] Media assignment rebuilt on the promo model: fixed campaign column, file columns with Change file / Browse library, Direct/OTA checkboxes
+- [x] Both boards are horizontally scrollable with Add offer / Add file, so the count is not fixed at three
+- [x] iPhone preview: composer pinned outside the scroll area, frosted glass, larger; content no longer overflows the frame
