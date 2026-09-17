@@ -1,21 +1,27 @@
-import { useMemo, useRef, useState } from "react";
-import { Info, Search, Upload, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, FileStack, GripVertical, Info, Plus, Search, Trash2, Upload, X } from "lucide-react";
 import { MediaThumb } from "./MediaPicker";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  MEDIA_DRAG_TYPE,
+  CAMPAIGN_DRAG_TYPE,
   attachMediaToCampaign,
   audienceMediaIds,
-  commonMediaIds,
   detachMediaFromCampaign,
   mutate,
   uid,
   useMarketing,
   type AudienceKey,
   type MarketingCampaign,
+  type MediaItem,
   type MediaType,
   type MessageChannel,
 } from "@/lib/marketing";
+
+const AUDIENCE_KEYS: AudienceKey[] = ["direct", "ota"];
+const STORAGE_KEY = "directful.media-slots-v1";
+
+type Slots = Record<MessageChannel, (string | null)[]>;
 
 function typeOf(file: File): MediaType {
   if (file.type.startsWith("image/")) return "image";
@@ -23,112 +29,97 @@ function typeOf(file: File): MediaType {
   return "document";
 }
 
-const AUDIENCES: { key: AudienceKey; label: string; hint: string }[] = [
-  { key: "direct", label: "Direct guests", hint: "Only guests who booked with you" },
-  { key: "ota", label: "OTA guests", hint: "Only guests from booking sites" },
-];
+function loadSlots(media: MediaItem[]): Slots {
+  const seed = () => Array.from({ length: 3 }, (_, i) => media[i]?.id ?? null);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Slots;
+      if (parsed && Array.isArray(parsed.text) && Array.isArray(parsed.email)) return parsed;
+    }
+  } catch {
+    /* ignore */
+  }
+  return { text: seed(), email: seed() };
+}
 
-/** Small thumbnail chip for one attached file. */
-function MediaChip({
-  mediaId,
-  media,
-  onRemove,
-  removeLabel,
-}: {
-  mediaId: string;
-  media: ReturnType<typeof useMarketing>["media"];
-  onRemove: () => void;
-  removeLabel: string;
-}) {
-  const item = media.find((m) => m.id === mediaId);
-  if (!item) return null;
+function ConfigRow({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex max-w-full items-center gap-1.5 rounded-sm border border-border bg-card py-0.5 pl-0.5 pr-1.5 text-[10px] text-muted-foreground">
-      <span className="size-7 shrink-0 overflow-hidden rounded-[2px] border border-border bg-muted">
-        <MediaThumb item={item} />
-      </span>
-      <span className="max-w-24 truncate">{item.name}</span>
-      <button
-        type="button"
-        aria-label={removeLabel}
-        title={removeLabel}
-        onClick={onRemove}
-        className="shrink-0 hover:text-destructive"
-      >
-        <X size={10} />
-      </button>
-    </span>
+    <div className="flex items-start justify-between gap-3 py-[3px]">
+      <span className="shrink-0 text-[10.5px] text-muted-foreground">{label}</span>
+      <span className="min-w-0 truncate text-right text-[10.5px] font-medium text-card-foreground">{value}</span>
+    </div>
   );
 }
 
-/** One campaign's segment drop row with thumbnails for the active channel. */
-function AudienceRow({
+const TYPE_LABEL: Record<MediaType, string> = { image: "Image", video: "Video", document: "Document" };
+
+/** A campaign attached to one file: which guest segments receive it. */
+function SegmentChecks({
   campaign,
-  audience,
-  label,
+  mediaId,
   channel,
-  media,
-  dragging,
-  onDrop,
+  onToggle,
   onRemove,
+  onDragStart,
+  onDragEnd,
 }: {
   campaign: MarketingCampaign;
-  audience: AudienceKey;
-  label: string;
+  mediaId: string;
   channel: MessageChannel;
-  media: ReturnType<typeof useMarketing>["media"];
-  dragging: string | null;
-  onDrop: (campaignId: string, audience: AudienceKey) => void;
-  onRemove: (campaignId: string, audience: AudienceKey, mediaId: string) => void;
+  onToggle: (audience: AudienceKey, value: boolean) => void;
+  onRemove: () => void;
+  onDragStart: (event: React.DragEvent) => void;
+  onDragEnd: () => void;
 }) {
-  const [over, setOver] = useState(false);
-  const ids = audienceMediaIds(campaign, audience, channel);
   return (
     <div
-      onDragOver={(event) => {
-        if (!event.dataTransfer.types.includes(MEDIA_DRAG_TYPE) && !dragging) return;
-        event.preventDefault();
-        event.stopPropagation();
-        event.dataTransfer.dropEffect = "copy";
-        setOver(true);
-      }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const id = event.dataTransfer.getData(MEDIA_DRAG_TYPE) || dragging;
-        setOver(false);
-        if (id) onDrop(campaign.id, audience);
-      }}
-      className={`rounded-sm border px-2 py-1.5 transition-colors ${
-        over ? "border-brand bg-brand-soft" : "border-border bg-background"
-      }`}
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-2.5 py-2 shadow-sm active:cursor-grabbing"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      {ids.length === 0 ? (
-        <p className="mt-0.5 text-[10.5px] text-muted-foreground">Drop a file here</p>
-      ) : (
-        <div className="mt-1 flex flex-wrap gap-1">
-          {ids.map((id) => (
-            <MediaChip
-              key={id}
-              mediaId={id}
-              media={media}
-              onRemove={() => onRemove(campaign.id, audience, id)}
-              removeLabel={`Remove from ${label}`}
+      <GripVertical size={12} className="shrink-0 text-muted-foreground/60" />
+      <span className="min-w-0 flex-1 truncate text-[11.5px] font-medium text-card-foreground">{campaign.name}</span>
+      {AUDIENCE_KEYS.map((audience) => {
+        const checked = audienceMediaIds(campaign, audience, channel).includes(mediaId);
+        return (
+          <label
+            key={audience}
+            className={`flex shrink-0 cursor-pointer items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
+              checked ? "border-brand/50 bg-brand-soft text-brand" : "border-border text-muted-foreground hover:border-brand/40"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(event) => onToggle(audience, event.target.checked)}
+              className="sr-only"
             />
-          ))}
-        </div>
-      )}
+            <span className="grid size-2.5 place-items-center rounded-[2px] border border-current">
+              {checked && <Check size={8} strokeWidth={3.5} />}
+            </span>
+            {audience}
+          </label>
+        );
+      })}
+      <button
+        type="button"
+        aria-label={`Remove ${campaign.name} from this file`}
+        onClick={onRemove}
+        className="shrink-0 text-muted-foreground hover:text-destructive"
+      >
+        <X size={11} />
+      </button>
     </div>
   );
 }
 
 /**
- * Full overlay for attaching media. Text and Email have separate tabs; each
- * has three global targets (All, Direct, OTA guests) that apply across every
- * campaign — with thumbnails and one-click removal everywhere — plus
- * individual campaign cards with per-segment drops.
+ * Media assignment board built on the same model as promotions: a fixed column
+ * of campaigns with nothing attached, beside a horizontally scrollable row of
+ * file columns. Each column holds one library file (swap it with Change file)
+ * and campaigns are dragged in, with Direct/OTA checkboxes per campaign.
  */
 export function MediaAssignOverlay({
   campaigns,
@@ -139,69 +130,81 @@ export function MediaAssignOverlay({
 }) {
   const { media, folders } = useMarketing();
   const [channel, setChannel] = useState<MessageChannel>("text");
-  const [query, setQuery] = useState("");
+  const [slots, setSlots] = useState<Slots>(() => loadSlots(media));
   const [dragging, setDragging] = useState<string | null>(null);
-  const [over, setOver] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  const [picker, setPicker] = useState<number | null>(null);
+  const [details, setDetails] = useState<number | null>(null);
 
-  const q = query.trim().toLowerCase();
-  const list = useMemo(
-    () => [...media].filter((item) => !q || item.name.toLowerCase().includes(q)).sort((a, b) => b.addedAt - a.addedAt),
-    [media, q],
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+    } catch {
+      /* ignore */
+    }
+  }, [slots]);
+
+  const columns = slots[channel];
+  const setColumns = (fn: (current: (string | null)[]) => (string | null)[]) =>
+    setSlots((current) => ({ ...current, [channel]: fn(current[channel]) }));
+
+  const itemById = (id: string | null) => (id ? media.find((m) => m.id === id) ?? null : null);
+
+  const campaignsOn = (mediaId: string) =>
+    campaigns.filter((c) => AUDIENCE_KEYS.some((a) => audienceMediaIds(c, a, channel).includes(mediaId)));
+
+  const unattached = campaigns.filter((c) =>
+    AUDIENCE_KEYS.every((a) => audienceMediaIds(c, a, channel).length === 0),
   );
+
+  const beginDrag = (event: React.DragEvent, campaignId: string) => {
+    event.dataTransfer.setData(CAMPAIGN_DRAG_TYPE, campaignId);
+    event.dataTransfer.setData("text/plain", campaignId);
+    event.dataTransfer.effectAllowed = "move";
+    setDragging(campaignId);
+  };
+
+  const allow = (event: React.DragEvent) => {
+    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  };
+
+  const draggedId = (event: React.DragEvent) =>
+    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
+
+  /** Remove every file of this channel from a campaign. */
+  const clearCampaign = (campaignId: string) => {
+    const campaign = campaigns.find((c) => c.id === campaignId);
+    if (!campaign) return;
+    AUDIENCE_KEYS.forEach((audience) =>
+      audienceMediaIds(campaign, audience, channel).forEach((id) =>
+        detachMediaFromCampaign(campaignId, id, [audience], channel),
+      ),
+    );
+  };
 
   const upload = (files: FileList | File[] | null) => {
     const arr = Array.from(files ?? []);
     if (!arr.length) return;
+    const ids: string[] = [];
     mutate((draft) =>
-      arr.forEach((file) =>
+      arr.forEach((file) => {
+        const id = uid();
+        ids.push(id);
         draft.media.unshift({
-          id: uid(),
+          id,
           name: file.name,
           type: typeOf(file),
           folder: folders[0] ?? "Uploads",
           size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
           url: file.type.startsWith("image/") || file.type.startsWith("video/") ? URL.createObjectURL(file) : undefined,
           addedAt: Date.now(),
-        }),
-      ),
+        });
+      }),
     );
+    return ids[0] ?? null;
   };
-
-  const allow = (event: React.DragEvent, key: string) => {
-    if (!event.dataTransfer.types.includes(MEDIA_DRAG_TYPE) && !dragging) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
-    setOver(key);
-  };
-
-  const pickedId = (event: React.DragEvent) => {
-    const id = event.dataTransfer.getData(MEDIA_DRAG_TYPE) || dragging;
-    if (!id) return null;
-    event.preventDefault();
-    setOver(null);
-    setDragging(null);
-    return id;
-  };
-
-  const dropGlobal = (event: React.DragEvent, audiences: AudienceKey[] | "all") => {
-    const id = pickedId(event);
-    if (!id) return;
-    campaigns.forEach((campaign) =>
-      attachMediaToCampaign(campaign.id, id, audiences === "all" ? ["direct", "ota"] : audiences, channel),
-    );
-  };
-
-  const dropCampaign = (campaignId: string, audience: AudienceKey) => {
-    if (!dragging) return;
-    attachMediaToCampaign(campaignId, dragging, [audience], channel);
-    setDragging(null);
-  };
-
-  const globalScopes: { key: string; label: string; hint: string; audiences: AudienceKey[] | "all" }[] = [
-    { key: "all", label: "All guests", hint: "Every campaign · both segments", audiences: "all" },
-    ...AUDIENCES.map((a) => ({ key: a.key, label: a.label, hint: a.hint, audiences: [a.key] as AudienceKey[] })),
-  ];
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-canvas">
@@ -210,7 +213,7 @@ export function MediaAssignOverlay({
           <p className="text-[11px] font-semibold uppercase tracking-wide text-brand">Media</p>
           <h2 className="truncate text-[17px] font-semibold text-card-foreground">Attach media to campaigns</h2>
           <p className="truncate text-[11.5px] text-muted-foreground">
-            Drop a file on All, Direct or OTA guests to apply it everywhere, or on a single campaign.
+            Drag campaigns onto a file, then choose which guest segments receive it.
           </p>
         </div>
         <Button variant="brand" size="sm" onClick={onClose}>
@@ -218,18 +221,15 @@ export function MediaAssignOverlay({
         </Button>
       </header>
 
-      {/* Channel tabs */}
       <div className="flex gap-1 border-b border-border bg-card px-4 pt-2 sm:px-6">
         {(["text", "email"] as MessageChannel[]).map((c) => (
           <button
             key={c}
             type="button"
-            onClick={() => setChannel(c)}
+            onClick={() => { setChannel(c); setDetails(null); }}
             aria-pressed={channel === c}
             className={`rounded-t-md border-b-2 px-4 py-2 text-[12.5px] font-semibold transition-colors ${
-              channel === c
-                ? "border-brand text-brand"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+              channel === c ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {c === "text" ? "Text" : "Email"}
@@ -240,156 +240,291 @@ export function MediaAssignOverlay({
       <p className="flex items-start gap-2 border-b border-border bg-brand-soft/50 px-4 py-2 text-[11.5px] text-muted-foreground sm:px-6">
         <Info size={13} className="mt-[1px] shrink-0 text-brand" />
         {channel === "text"
-          ? "These files travel with the text message. Images and video are sent as MMS; documents are sent as a link."
-          : "These images are placed inside the email content for every campaign in the chosen scope."}
+          ? "These files travel with the text message. Scroll sideways for more files, or add another file column."
+          : "These images are placed inside the email content. Scroll sideways for more files, or add another file column."}
       </p>
 
-      <div className="grid min-h-0 flex-1 overflow-hidden md:grid-cols-[300px_1fr]">
-        <aside className="flex min-h-0 flex-col overflow-hidden border-b border-border bg-card p-4 md:border-b-0 md:border-r">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-[13px] font-semibold text-card-foreground">Media</h3>
+      <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Your files</p>
+          <p className="text-[11px] text-muted-foreground">Drag campaigns into a file · scroll for more files</p>
+        </div>
+
+        <div className="mt-3 flex min-h-0 flex-1 gap-4">
+          {/* Fixed campaign column */}
+          <section
+            onDragOver={(event) => { allow(event); setOver(-1); }}
+            onDragLeave={() => setOver((c) => (c === -1 ? null : c))}
+            onDrop={(event) => {
+              event.preventDefault();
+              const id = draggedId(event);
+              if (id) clearCampaign(id);
+              setOver(null);
+              setDragging(null);
+            }}
+            className={`flex w-[250px] shrink-0 flex-col rounded-xl border p-4 transition-colors sm:w-[270px] ${
+              over === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"
+            }`}
+          >
+            <div className="flex items-start gap-2 border-b border-border pb-2.5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                <FileStack size={15} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[12.5px] font-semibold text-card-foreground">No file attached</p>
+                <p className="mt-0.5 text-[10.5px] text-muted-foreground">
+                  {unattached.length} campaigns with no {channel === "text" ? "text" : "email"} media
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
+              {unattached.map((campaign) => (
+                <article
+                  key={campaign.id}
+                  draggable
+                  onDragStart={(event) => beginDrag(event, campaign.id)}
+                  onDragEnd={() => { setDragging(null); setOver(null); }}
+                  className={`flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-2.5 py-2.5 shadow-sm transition-shadow hover:shadow active:cursor-grabbing ${dragging === campaign.id ? "opacity-50" : ""}`}
+                >
+                  <GripVertical size={12} className="shrink-0 text-muted-foreground/60" />
+                  <div className="min-w-0">
+                    <p className="truncate text-[12px] font-medium text-card-foreground">{campaign.name}</p>
+                    <p className="truncate text-[10.5px] text-muted-foreground">{campaign.timing}</p>
+                  </div>
+                </article>
+              ))}
+              {unattached.length === 0 && (
+                <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-[11px] text-muted-foreground">
+                  Drop here to remove every file
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Horizontally scrollable file columns */}
+          <div className="flex min-h-0 min-w-0 flex-1 gap-4 overflow-x-auto pb-1">
+            {columns.map((mediaId, index) => {
+              const item = itemById(mediaId);
+              const assigned = item ? campaignsOn(item.id) : [];
+              const open = details === index;
+              return (
+                <section
+                  key={index}
+                  onDragOver={(event) => { allow(event); setOver(index); }}
+                  onDragLeave={() => setOver((c) => (c === index ? null : c))}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    const id = draggedId(event);
+                    setOver(null);
+                    setDragging(null);
+                    if (id && item) attachMediaToCampaign(id, item.id, AUDIENCE_KEYS, channel);
+                  }}
+                  className={`flex w-[290px] shrink-0 flex-col rounded-xl border p-4 transition-colors ${
+                    over === index
+                      ? "border-brand bg-brand-soft ring-2 ring-brand/30"
+                      : item
+                        ? "border-brand/30 bg-brand-soft/30"
+                        : "border-dashed border-border bg-card"
+                  }`}
+                >
+                  {item ? (
+                    <>
+                      <div className="border-b border-border pb-2.5">
+                        <div className="flex items-start gap-2">
+                          <span className="size-9 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
+                            <MediaThumb item={item} />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[12.5px] font-semibold text-card-foreground">{item.name}</p>
+                            <p className="mt-0.5 truncate text-[10.5px] text-muted-foreground">
+                              {TYPE_LABEL[item.type]} · {assigned.length} campaign{assigned.length === 1 ? "" : "s"}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDetails(open ? null : index)}
+                          aria-expanded={open}
+                          className="mt-2 flex w-full items-center justify-between rounded-sm px-1 py-1 text-[10.5px] font-semibold text-brand transition-colors hover:bg-brand-soft/70"
+                        >
+                          See file details
+                          <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+                        </button>
+                        {open && (
+                          <div className="mt-1 rounded-md border border-border bg-background px-2.5 py-2">
+                            <ConfigRow label="File" value={item.name} />
+                            <ConfigRow label="Type" value={TYPE_LABEL[item.type]} />
+                            <ConfigRow label="Folder" value={item.folder} />
+                            <ConfigRow label="Size" value={item.size} />
+                            <ConfigRow label="Sent as" value={channel === "text" ? "MMS attachment" : "In-email image"} />
+                            <div className="mt-2 flex items-center gap-3 border-t border-border pt-2">
+                              <button type="button" onClick={() => setPicker(index)} className="text-[10.5px] font-semibold text-brand hover:underline">
+                                Change file
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setColumns((current) => current.map((v, i) => (i === index ? null : v)))}
+                                className="text-[10.5px] text-muted-foreground hover:text-destructive"
+                              >
+                                Clear column
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
+                        {assigned.map((campaign) => (
+                          <SegmentChecks
+                            key={campaign.id}
+                            campaign={campaign}
+                            mediaId={item.id}
+                            channel={channel}
+                            onToggle={(audience, value) =>
+                              value
+                                ? attachMediaToCampaign(campaign.id, item.id, [audience], channel)
+                                : detachMediaFromCampaign(campaign.id, item.id, [audience], channel)
+                            }
+                            onRemove={() => detachMediaFromCampaign(campaign.id, item.id, AUDIENCE_KEYS, channel)}
+                            onDragStart={(event) => beginDrag(event, campaign.id)}
+                            onDragEnd={() => { setDragging(null); setOver(null); }}
+                          />
+                        ))}
+                        {assigned.length === 0 && (
+                          <p className="rounded-md border border-dashed border-border px-3 py-5 text-center text-[11px] text-muted-foreground">
+                            Drop a campaign here
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 text-center">
+                      <p className="text-[12px] font-medium text-muted-foreground">Empty file column</p>
+                      <Button variant="outline" size="sm" onClick={() => setPicker(index)}>
+                        Browse library
+                      </Button>
+                      {columns.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setColumns((current) => current.filter((_, i) => i !== index))}
+                          className="flex items-center gap-1 text-[10.5px] text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 size={11} /> Remove column
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={() => setColumns((current) => [...current, null])}
+              className="flex w-[150px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-card text-muted-foreground transition-colors hover:border-brand/50 hover:text-brand"
+            >
+              <Plus size={16} />
+              <span className="text-[11.5px] font-medium">Add file</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <MediaSlotPicker
+        open={picker !== null}
+        media={media}
+        activeIds={columns}
+        onUpload={upload}
+        onClose={() => setPicker(null)}
+        onSelect={(id) => {
+          if (picker !== null) setColumns((current) => current.map((v, i) => (i === picker ? id : v)));
+          setPicker(null);
+        }}
+      />
+    </div>
+  );
+}
+
+/** Library chooser for which file occupies a column, with upload. */
+function MediaSlotPicker({
+  open,
+  media,
+  activeIds,
+  onUpload,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  media: MediaItem[];
+  activeIds: (string | null)[];
+  onUpload: (files: FileList | File[] | null) => string | null | undefined;
+  onClose: () => void;
+  onSelect: (id: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return [...media]
+      .filter((m) => !q || `${m.name} ${m.folder}`.toLowerCase().includes(q))
+      .sort((a, b) => b.addedAt - a.addedAt);
+  }, [media, query]);
+
+  return (
+    <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
+      <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col overflow-hidden border-border bg-card p-0 shadow-float">
+        <DialogHeader className="border-b border-border px-5 py-4 pr-12">
+          <DialogTitle className="text-[16px]">Choose a file</DialogTitle>
+          <DialogDescription>Pick a file from the library, or upload a new one.</DialogDescription>
+        </DialogHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto p-5">
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search media"
+                className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-[13px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+              />
+            </div>
             <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
               <Upload size={13} />
               Upload
             </Button>
-          </div>
-          <input
-            ref={fileRef}
-            type="file"
-            multiple
-            accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.csv,.xls,.xlsx"
-            className="hidden"
-            onChange={(event) => {
-              upload(event.target.files);
-              event.target.value = "";
-            }}
-          />
-          <div className="relative mt-2">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search media"
-              className="w-full rounded-md border border-input bg-background py-1.5 pl-8 pr-2.5 text-[12.5px] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+              ref={fileRef}
+              type="file"
+              multiple
+              accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.csv,.xls,.xlsx"
+              className="hidden"
+              onChange={(event) => {
+                const id = onUpload(event.target.files);
+                event.target.value = "";
+                if (id) onSelect(id);
+              }}
             />
           </div>
-          <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 content-start gap-2 overflow-y-auto pr-1">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {list.map((item) => (
-              <div
+              <button
                 key={item.id}
-                draggable
-                onDragStart={(event) => {
-                  event.dataTransfer.setData(MEDIA_DRAG_TYPE, item.id);
-                  event.dataTransfer.setData("text/plain", item.id);
-                  event.dataTransfer.effectAllowed = "copy";
-                  setDragging(item.id);
-                }}
-                onDragEnd={() => setDragging(null)}
-                className="cursor-grab overflow-hidden rounded-md border border-border bg-background transition-colors hover:border-brand/45 active:cursor-grabbing"
-              >
-                <div className="h-16 bg-muted">
-                  <MediaThumb item={item} />
-                </div>
-                <p className="truncate px-1.5 py-1 text-[10.5px] text-muted-foreground">{item.name}</p>
-              </div>
-            ))}
-            {list.length === 0 && (
-              <p className="col-span-2 px-1 py-4 text-center text-[11.5px] text-muted-foreground">No media matches.</p>
-            )}
-          </div>
-        </aside>
-
-        <div className="min-h-0 overflow-y-auto p-4 sm:p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Apply to every campaign
-          </p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-3">
-            {globalScopes.map((scope) => {
-              const common = commonMediaIds(campaigns, scope.audiences === "all" ? ["direct", "ota"] : scope.audiences, channel);
-              return (
-                <div
-                  key={scope.key}
-                  onDragOver={(event) => allow(event, scope.key)}
-                  onDragLeave={() => setOver((c) => (c === scope.key ? null : c))}
-                  onDrop={(event) => dropGlobal(event, scope.audiences)}
-                  className={`rounded-md border-2 border-dashed px-3 py-3 transition-colors ${
-                    over === scope.key
-                      ? "border-brand bg-brand-soft"
-                      : scope.key === "all"
-                        ? "border-brand/35 bg-brand-soft/40"
-                        : "border-border bg-card"
-                  }`}
-                >
-                  <p className="text-[12.5px] font-semibold text-card-foreground">{scope.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{scope.hint}</p>
-                  {common.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1 border-t border-border pt-2">
-                      {common.map((id) => (
-                        <MediaChip
-                          key={id}
-                          mediaId={id}
-                          media={media}
-                          removeLabel={`Remove from every campaign (${scope.label})`}
-                          onRemove={() =>
-                            campaigns.forEach((campaign) =>
-                              detachMediaFromCampaign(
-                                campaign.id,
-                                id,
-                                scope.audiences === "all" ? ["direct", "ota"] : scope.audiences,
-                                channel,
-                              ),
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="mt-5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Individual campaigns
-          </p>
-          <div className="mt-2 grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
-            {campaigns.map((campaign) => (
-              <section
-                key={campaign.id}
-                onDragOver={(event) => allow(event, campaign.id)}
-                onDragLeave={() => setOver((c) => (c === campaign.id ? null : c))}
-                onDrop={(event) => {
-                  // Dropping on the card body (not a segment) applies to both.
-                  const id = pickedId(event);
-                  if (id) attachMediaToCampaign(campaign.id, id, ["direct", "ota"], channel);
-                }}
-                className={`rounded-md border bg-card p-3 shadow-card transition-colors ${
-                  over === campaign.id ? "border-brand bg-brand-soft" : "border-border"
+                onClick={() => onSelect(item.id)}
+                className={`overflow-hidden rounded-md border text-left transition-colors hover:border-brand/50 ${
+                  activeIds.includes(item.id) ? "border-brand/60 bg-brand-soft/40" : "border-border bg-background"
                 }`}
               >
-                <p className="truncate text-[12.5px] font-semibold text-card-foreground">{campaign.name}</p>
-                <div className="mt-2 grid gap-1.5">
-                  {AUDIENCES.map((a) => (
-                    <AudienceRow
-                      key={a.key}
-                      campaign={campaign}
-                      audience={a.key}
-                      label={a.label}
-                      channel={channel}
-                      media={media}
-                      dragging={dragging}
-                      onDrop={dropCampaign}
-                      onRemove={(campaignId, audience, mediaId) =>
-                        detachMediaFromCampaign(campaignId, mediaId, [audience], channel)
-                      }
-                    />
-                  ))}
-                </div>
-              </section>
+                <span className="block h-20 bg-muted">
+                  <MediaThumb item={item} />
+                </span>
+                <span className="block truncate px-2 py-1.5 text-[11px] text-muted-foreground">{item.name}</span>
+              </button>
             ))}
+            {list.length === 0 && (
+              <p className="col-span-full py-4 text-center text-[12px] text-muted-foreground">No media matches.</p>
+            )}
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
