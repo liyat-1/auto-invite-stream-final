@@ -320,7 +320,7 @@ export function PromoDropOverlay({
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+                    <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
                       {assigned.map((campaign) => (
                         <SegmentChecks
                           key={campaign.id}
