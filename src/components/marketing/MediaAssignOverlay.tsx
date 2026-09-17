@@ -288,10 +288,15 @@ export function MediaAssignOverlay({
             onDragLeave={() => setOver((c) => (c === -1 ? null : c))}
             onDrop={(event) => {
               event.preventDefault();
-              const id = draggedId(event);
-              if (id) clearCampaign(id);
+              const scope = draggedScope(event);
+              if (scope) clearCollection(scope);
+              else {
+                const id = draggedId(event);
+                if (id) clearCampaign(id);
+              }
               setOver(null);
               setDragging(null);
+              setBulk(null);
             }}
             className={`flex w-[250px] shrink-0 flex-col rounded-xl border p-4 transition-colors sm:w-[270px] ${
               over === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"
