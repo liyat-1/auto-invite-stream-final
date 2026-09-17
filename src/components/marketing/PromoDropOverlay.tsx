@@ -282,8 +282,8 @@ export function PromoDropOverlay({
                   setDragging(null);
                   if (id && promotion) dropCampaign(id, promotion.id);
                 }}
-                className={`flex min-h-[220px] flex-col rounded-lg border p-3 transition-colors ${
-                  overArea === index ? "border-brand bg-brand-soft" : promotion ? "border-brand/30 bg-brand-soft/30" : "border-dashed border-border bg-card"
+                className={`flex min-h-[340px] flex-col rounded-xl border p-4 transition-colors ${
+                  overArea === index ? "border-brand bg-brand-soft ring-2 ring-brand/30" : promotion ? "border-brand/30 bg-brand-soft/30" : "border-dashed border-border bg-card"
                 }`}
               >
                 {promotion ? (
