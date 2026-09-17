@@ -152,6 +152,7 @@ export type EmailContent = {
   body: string;
   ctaLabel: string;
   ctaUrl: string;
+  mediaIds: string[];
 };
 
 /** Who touched a variant last, so the UI can show a small edit log. */
@@ -536,6 +537,7 @@ function variantFrom(seed: Seed, key: AudienceKey): Variant {
       body: t.body,
       ctaLabel: t.ctaLabel,
       ctaUrl: "https://directful.com/book",
+      mediaIds: [],
     },
   };
 }
@@ -598,6 +600,7 @@ function migrateCampaign(c: MarketingCampaign): MarketingCampaign {
       email: {
         ...v.email,
         layout: normalizeLayout(String(v.email?.layout ?? "hero_top")),
+        mediaIds: v.email?.mediaIds ?? [],
       },
     };
   };
@@ -863,9 +866,15 @@ export function campaignMediaIds(c: MarketingCampaign): string[] {
   return [...new Set([...(c.variants.direct.text.mediaIds ?? []), ...(c.variants.ota.text.mediaIds ?? [])])];
 }
 
-/** Media attached to one guest segment of a campaign. */
-export function audienceMediaIds(c: MarketingCampaign, audience: AudienceKey): string[] {
-  return c.variants[audience].text.mediaIds ?? [];
+export type MessageChannel = "text" | "email";
+
+/** Media attached to one channel and guest segment of a campaign. */
+export function audienceMediaIds(
+  c: MarketingCampaign,
+  audience: AudienceKey,
+  channel: MessageChannel = "text",
+): string[] {
+  return c.variants[audience][channel].mediaIds ?? [];
 }
 
 const BOTH_AUDIENCES: AudienceKey[] = ["direct", "ota"];
@@ -874,13 +883,14 @@ export function attachMediaToCampaign(
   campaignId: string,
   mediaId: string,
   audiences: AudienceKey[] = BOTH_AUDIENCES,
+  channel: MessageChannel = "text",
 ) {
   mutate((draft) => {
     const c = draft.campaigns.find((x) => x.id === campaignId);
     if (!c) return;
     audiences.forEach((key) => {
-      const ids = c.variants[key].text.mediaIds ?? [];
-      if (!ids.includes(mediaId)) c.variants[key].text.mediaIds = [...ids, mediaId];
+      const ids = c.variants[key][channel].mediaIds ?? [];
+      if (!ids.includes(mediaId)) c.variants[key][channel].mediaIds = [...ids, mediaId];
     });
   });
 }
@@ -889,14 +899,28 @@ export function detachMediaFromCampaign(
   campaignId: string,
   mediaId: string,
   audiences: AudienceKey[] = BOTH_AUDIENCES,
+  channel: MessageChannel = "text",
 ) {
   mutate((draft) => {
     const c = draft.campaigns.find((x) => x.id === campaignId);
     if (!c) return;
     audiences.forEach((key) => {
-      c.variants[key].text.mediaIds = (c.variants[key].text.mediaIds ?? []).filter((id) => id !== mediaId);
+      c.variants[key][channel].mediaIds = (c.variants[key][channel].mediaIds ?? []).filter((id) => id !== mediaId);
     });
   });
+}
+
+/** Files currently attached across every campaign in a scope. */
+export function commonMediaIds(
+  campaigns: MarketingCampaign[],
+  audiences: AudienceKey[],
+  channel: MessageChannel = "text",
+): string[] {
+  const lists = campaigns.flatMap((campaign) =>
+    audiences.map((audience) => audienceMediaIds(campaign, audience, channel)),
+  );
+  if (lists.length === 0) return [];
+  return lists.reduce<string[]>((common, ids) => common.filter((id) => ids.includes(id)), [...lists[0]]);
 }
 
 export const MEDIA_DRAG_TYPE = "application/x-directful-media";
