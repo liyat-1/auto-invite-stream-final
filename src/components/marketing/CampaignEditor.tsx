@@ -185,7 +185,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                 </span>
               )}
             </div>
-            {/* Audience sections */}>
+            {/* Audience sections */}
             <div className="min-w-0 space-y-3">
             {(["direct", "ota"] as AudienceKey[]).map((key) => {
               const active = audience === key;
@@ -311,6 +311,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                 </section>
               );
             })}
+          </div>
           </div>
 
           {/* Persistent live preview for the active audience */}
