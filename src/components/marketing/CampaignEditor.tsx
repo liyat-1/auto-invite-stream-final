@@ -255,7 +255,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
                                 <>
                                   <li>· Keep texts short — one clear ask works best, and every 160 characters costs another segment.</li>
                                   <li>· Tap a merge tag above the box to insert it; it fills in per guest when the message is sent.</li>
-                                  <li>· Attach images or documents under Advanced settings. Images travel as MMS, documents as a link.</li>
+                                  <li>· Attach images or documents under Media and promotion. Images travel as MMS, documents as a link.</li>
                                 </>
                               ) : (
                                 <>
