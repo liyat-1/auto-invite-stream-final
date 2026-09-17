@@ -248,7 +248,7 @@ export function PromoDropOverlay({
               setOverArea(null);
               setDragging(null);
             }}
-            className={`flex min-h-[260px] flex-col rounded-lg border p-3 transition-colors ${overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"}`}
+            className={`flex min-h-[340px] flex-col rounded-xl border p-4 transition-colors ${overArea === -1 ? "border-brand bg-brand-soft" : "border-border bg-card"}`}
           >
             <div className="flex items-start gap-2 border-b border-border pb-2.5">
               <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground"><Ban size={15} /></span>
