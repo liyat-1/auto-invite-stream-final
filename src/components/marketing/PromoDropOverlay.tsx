@@ -41,6 +41,7 @@ function SegmentChecks({
   onToggle,
   onRemove,
   onDragStart,
+  onDragEnd,
 }: {
   campaign: MarketingCampaign;
   promotionId: string;
