@@ -97,15 +97,6 @@ export function SmsPreview({
         )}
       </div>
 
-      <div className="sticky bottom-0 mt-auto flex items-center gap-2.5 bg-white/70 px-3.5 py-3 backdrop-blur-xl">
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#e9e9eb]">
-          <Plus size={19} className="text-zinc-600" strokeWidth={2.5} />
-        </span>
-        <div className="flex h-9 flex-1 items-center justify-between rounded-full border border-zinc-300/70 bg-white/85 px-4">
-          <span className="text-[14.5px] text-zinc-400">iMessage</span>
-          <Mic size={16} className="text-zinc-400" />
-        </div>
-      </div>
     </PhoneMockup>
   );
 }
