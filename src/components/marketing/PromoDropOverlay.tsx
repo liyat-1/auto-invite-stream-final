@@ -237,7 +237,7 @@ export function PromoDropOverlay({
           <p className="text-[11px] text-muted-foreground">Drag campaign cards between columns</p>
         </div>
 
-        <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-3 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <section
             onDragOver={(event) => { allow(event); setOverArea(-1); }}
             onDragLeave={() => setOverArea((current) => (current === -1 ? null : current))}
