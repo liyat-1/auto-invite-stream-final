@@ -4,9 +4,10 @@
 Make campaign setup easier to scan and manage: four chosen promotion drop areas, audience-aware media assignment, a direct channel-strategy launcher, and a reference-matched content editor with separate Direct and OTA sections.
 
 ## Promotion management
-- Replace the current campaign-first promotion overlay with four visible, user-selectable promotion drop areas.
-- Add a compact “Choose promotions” control so any four offers from the promotion library can occupy those areas.
-- List campaigns in a horizontal row below the promotion areas; cards can be dragged onto an offer.
+- Add a visible “No promotion” column beside the selected promotion columns, using the same visual structure as an offer column.
+- Place every unassigned campaign in “No promotion” by default instead of keeping a separate campaign row.
+- Make campaign cards draggable directly between “No promotion” and promotion columns; dropping back into “No promotion” removes the offer for the applicable guest segments.
+- Keep four visible, user-selectable promotion areas and a compact control for changing which offers occupy them.
 - After assignment, show Direct and OTA as clear checkboxes on each campaign/offering relationship so either or both guest segments can be enabled.
 - Preserve the one-promotion-per-campaign-segment rule, clearly showing when a segment is already assigned elsewhere.
 - Keep promotion creation/editing/duplication/deletion in the existing Promotions tab; this surface remains assignment-only.
@@ -14,8 +15,10 @@ Make campaign setup easier to scan and manage: four chosen promotion drop areas,
 ## Media management
 - Replace the single “All campaigns” target with three global targets: All guests, Direct guests, and OTA guests.
 - Dropping on All applies media to both segments across every campaign; Direct and OTA apply only to that segment across every campaign.
-- Keep individual campaign targets, adding Direct and OTA controls/removal so their attachments are understandable and reversible.
-- Update media helpers to operate per audience while preserving existing combined campaign summaries.
+- Show a thumbnail preview and filename for every assigned image or video in global and individual targets.
+- Global targets list files applied across their full scope and provide one remove action that detaches a file from every affected campaign.
+- Separate Text and Email into top-level tabs; each tab has its own Direct and OTA targets and assignments.
+- Keep individual campaign targets with Direct and OTA controls/removal, and extend media helpers to operate per channel and audience while preserving existing combined campaign summaries.
 
 ## Channel strategy
 - Replace the collapsible strategy summary on the campaign page with one clear “Manage channel strategy” button.
@@ -27,10 +30,10 @@ Make campaign setup easier to scan and manage: four chosen promotion drop areas,
 ## Content editing popup
 - Retain the large centered popup, and fix its stacking so promotion selection, warnings, and template dialogs always open above it and always restore interaction after close.
 - Match the supplied text/email references: editing controls on the left, persistent live preview on the right, compact header/actions, restrained borders, and clear information hierarchy.
-- Replace Direct/OTA tabs with two audience sections containing their own complete content. Clicking a section activates it and updates the preview to that audience.
-- Keep the appropriate Text/Email mode control for campaigns that support both channels, while making the active audience unmistakable.
-- Text sections show the message and related editable text fields first; Media and Promotion move into an expandable “Advanced settings” area for that audience.
-- Email sections show subject, preheader, heading, body, and button fields first; Promotion moves into an expandable “Advanced settings” area. Template/layout controls stay relevant to email and visually secondary to copy editing.
+- Put Text and Email in top-level tabs. Inside each channel tab, show separate Direct and OTA sections; clicking a section activates it and updates the preview to that audience.
+- Text sections show the message and related editable text fields first; Media and Promotion move into an expandable “Media and promotion” area for that audience.
+- Email sections show subject, preheader, heading, body, and button fields first; Promotion moves into an expandable “Promotion settings” area. Template/layout controls stay relevant to email and visually secondary to copy editing.
+- Add an emoji picker beside the Text message control and beside relevant Email copy fields so chosen emoji are inserted into the active field.
 - Promotion Change and Remove remain available inside each audience’s advanced area and continue using the separate promotion picker.
 
 ## History, help, and spam checking
@@ -41,7 +44,7 @@ Make campaign setup easier to scan and manage: four chosen promotion drop areas,
 
 ## Preview polish
 - Keep the text preview synchronized with the active Direct/OTA section, including its media and promotion.
-- Refresh the phone frame toward the latest iMessage glass treatment: refined translucent navigation/composer surfaces, contemporary device chrome, and polished message/media presentation without compromising readability.
+- Rework the phone frame and conversation chrome toward the supplied iPhone 17 Pro Max references: slimmer titanium rails, larger modern proportions, compact contact header, current iMessage bubbles, and a glass composer without compromising readability.
 - Keep email promotions naturally before the call-to-action in every layout and synchronize the preview with the active audience.
 
 ## Technical details

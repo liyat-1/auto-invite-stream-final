@@ -114,3 +114,15 @@
 - [x] Add History, Help and Spam check panels to each audience section
 - [x] Refresh the phone frame and iMessage preview with frosted-glass chrome
 - [x] Verified overlays, drag model, editor panels, and email/text previews via Playwright — no console errors; typecheck clean
+
+## Promotion, media, and editor follow-up
+
+- [ ] Add a No promotion assignment column and move unassigned campaigns there
+- [ ] Replace the separate campaign row with drag-and-drop between assignment columns
+- [ ] Add assigned-media thumbnails and global bulk removal
+- [ ] Separate media assignment into Text and Email tabs with Direct and OTA targets
+- [ ] Move Text and Email to top-level editor tabs with Direct and OTA sections inside
+- [ ] Rename advanced controls to channel-specific professional wording
+- [ ] Add emoji insertion to Text and Email content fields
+- [ ] Match the phone preview more closely to the supplied iPhone 17 Pro Max references
+- [ ] Verify all updated workflows at desktop and mobile widths
