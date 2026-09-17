@@ -316,7 +316,7 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
               Preview · {AUDIENCE_LABEL[audience]} · {activeChannel === "text" ? "Text" : "Email"}
             </p>
             {activeChannel === "text" ? (
-              <div className="flex justify-center lg:justify-start">
+              <div className="flex max-w-full justify-center overflow-x-auto pb-2 lg:justify-start">
                 <SmsPreview
                   message={variant.text.message}
                   imageUrl={previewMedia?.url ?? null}
