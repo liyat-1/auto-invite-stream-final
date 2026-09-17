@@ -168,13 +168,40 @@ export function MediaAssignOverlay({
   };
 
   const allow = (event: React.DragEvent) => {
-    if (!dragging && !event.dataTransfer.types.includes(CAMPAIGN_DRAG_TYPE)) return;
+    const types = event.dataTransfer.types;
+    if (!dragging && !bulk && !types.includes(CAMPAIGN_DRAG_TYPE) && !types.includes(CAMPAIGN_BULK_DRAG_TYPE)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   };
 
-  const draggedId = (event: React.DragEvent) =>
-    event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || event.dataTransfer.getData("text/plain") || dragging;
+  const draggedScope = (event: React.DragEvent): BulkScope | null =>
+    (event.dataTransfer.getData(CAMPAIGN_BULK_DRAG_TYPE) as BulkScope) || bulk;
+
+  const draggedId = (event: React.DragEvent) => {
+    if (draggedScope(event)) return null;
+    const plain = event.dataTransfer.getData("text/plain");
+    return event.dataTransfer.getData(CAMPAIGN_DRAG_TYPE) || (plain.startsWith("bulk:") ? "" : plain) || dragging;
+  };
+
+  const audiencesOf = (scope: BulkScope): AudienceKey[] => (scope === "both" ? AUDIENCE_KEYS : [scope]);
+
+  /** Attach one file to every free campaign of a collection at once. */
+  const dropCollection = (scope: BulkScope, mediaId: string) => {
+    const audiences = audiencesOf(scope);
+    campaigns
+      .filter((c) => audiences.every((a) => !audienceMediaIds(c, a, channel).includes(mediaId)))
+      .forEach((c) => attachMediaToCampaign(c.id, mediaId, audiences, channel));
+  };
+
+  /** Detach every file of this channel for a whole collection. */
+  const clearCollection = (scope: BulkScope) => {
+    const audiences = audiencesOf(scope);
+    campaigns.forEach((c) =>
+      audiences.forEach((a) =>
+        audienceMediaIds(c, a, channel).forEach((id) => detachMediaFromCampaign(c.id, id, [a], channel)),
+      ),
+    );
+  };
 
   /** Remove every file of this channel from a campaign. */
   const clearCampaign = (campaignId: string) => {
