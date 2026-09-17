@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Gift, History, HelpCircle, RotateCcw, ShieldCheck, X } from "lucide-react";
+import { Check, History, HelpCircle, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { TextEditor } from "./TextEditor";
 import { EmailEditor, EmailPreview } from "./EmailEditor";
+import { PromotionSelector } from "./PromotionSelector";
 import { SmsPreview } from "@/components/editor/SmsPreview";
 import { checkContent } from "./contentChecks";
 import { Button } from "@/components/ui/button";
@@ -341,6 +342,3 @@ export function CampaignEditor({ id, onClose }: { id: string; onClose: () => voi
     </div>
   );
 }
-
-// PromotionSelector import kept at bottom via lazy reference to preserve ordering.
-import { PromotionSelector } from "./PromotionSelector";
